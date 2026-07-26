@@ -1,4 +1,10 @@
-import type { IArtsSmoothScrollingGlobal, IGsap, IScrollTrigger } from './interfaces'
+import type {
+  IArtsSmoothScrollingGlobal,
+  IElementorFrontend,
+  IGsap,
+  IJQueryStatic,
+  IScrollTrigger
+} from './interfaces'
 import type { TGateBoot, TKitSettings, TOptions } from './types'
 
 /**
@@ -17,6 +23,10 @@ declare global {
     gsap?: IGsap
     /** Runtime-detected, never bundled — see core/scrollTriggerSync.ts. */
     ScrollTrigger?: IScrollTrigger
+    /** Runtime-detected, never bundled — see core/elementorCompat.ts. */
+    elementorFrontend?: IElementorFrontend
+    /** Runtime-detected, never bundled — see core/elementorCompat.ts. */
+    jQuery?: IJQueryStatic
   }
 
   interface WindowEventMap {

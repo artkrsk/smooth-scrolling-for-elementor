@@ -2,6 +2,7 @@ import type Lenis from 'lenis'
 import type { IRafDriver, ISmoothScrolling } from '../interfaces'
 import type { TOptions } from '../types'
 import { applyDomState } from './domState'
+import { suppressElementorAnchors } from './elementorCompat'
 import { createLenis, resolveAnchorsOptions } from './lenisFactory'
 import { createRafDriver } from './rafDriver'
 import { syncScrollTrigger } from './scrollTriggerSync'
@@ -30,6 +31,7 @@ export function createSmoothScrolling(options: TOptions): ISmoothScrolling {
       lenis,
       resolveAnchorsOptions(currentOptions.lenisOptions.anchors)
     )
+    suppressElementorAnchors()
     applyDomState(true)
   }
 
