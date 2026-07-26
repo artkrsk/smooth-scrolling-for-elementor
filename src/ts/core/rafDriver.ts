@@ -1,0 +1,38 @@
+import type Lenis from 'lenis'
+import type { IRafDriver } from '../interfaces'
+
+/**
+ * Drives `lenis.raf(ms)` every frame. Prefers GSAP's ticker (prioritized,
+ * ahead of GSAP's own tween render queue) when present and allowed;
+ * otherwise runs an internal rAF loop.
+ */
+export function createRafDriver(lenis: Lenis, prefersGSAPRaf: boolean): IRafDriver {
+  const gsap = prefersGSAPRaf ? window.gsap : undefined
+
+  if (gsap) {
+    const update = (time: number) => {
+      lenis.raf(time * 1000)
+    }
+    gsap.ticker.add(update, false, true)
+    gsap.ticker.lagSmoothing(0)
+
+    return {
+      stop() {
+        gsap.ticker.remove(update)
+      }
+    }
+  }
+
+  let frameId = 0
+  const loop = (time: number) => {
+    lenis.raf(time)
+    frameId = requestAnimationFrame(loop)
+  }
+  frameId = requestAnimationFrame(loop)
+
+  return {
+    stop() {
+      cancelAnimationFrame(frameId)
+    }
+  }
+}
