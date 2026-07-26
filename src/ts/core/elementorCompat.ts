@@ -7,17 +7,19 @@ import type { IElementorFrontend } from '../interfaces'
 let hasRun = false
 
 /** Unbinds Elementor's classic anchor animator by the exact selector and
-    handler reference it bound with. No-op (never throws) on any shape that
-    doesn't match — including current Elementor trunk, which no longer wires
-    the module in at all. */
-const unbindAnchors = (elementorFrontend: IElementorFrontend): void => {
+    handler reference it bound with. Returns whether the unbind actually
+    happened — false (never throws) on any shape that doesn't match,
+    including current Elementor trunk (no module at all) and the window
+    between `elementorFrontend` existing and `utils.anchors` being populated. */
+const unbindAnchors = (elementorFrontend: IElementorFrontend): boolean => {
   const anchors = elementorFrontend.utils?.anchors
   const $document = elementorFrontend.elements?.$document
   if (!$document || !anchors?.getSettings || !anchors.handleAnchorLinks) {
-    return
+    return false
   }
 
   $document.off('click', anchors.getSettings('selectors.links'), anchors.handleAnchorLinks)
+  return true
 }
 
 /**
@@ -37,8 +39,7 @@ export function suppressElementorAnchors(): void {
   hasRun = true
 
   const elementorFrontend = window.elementorFrontend
-  if (elementorFrontend) {
-    unbindAnchors(elementorFrontend)
+  if (elementorFrontend && unbindAnchors(elementorFrontend)) {
     return
   }
 

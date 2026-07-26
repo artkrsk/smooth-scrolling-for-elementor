@@ -105,15 +105,46 @@ describe('clean no-op', () => {
       expect.any(Function)
     )
   })
+})
 
-  it('does nothing when the anchors module is missing from utils', async () => {
+describe('when elementorFrontend exists but utils.anchors is not populated yet', () => {
+  it('arms the deferred jQuery listener instead of latching a permanent miss, then unbinds once anchors appear', async () => {
+    // Covers the race between elementorFrontend being assigned (frontend.js
+    // parse) and utils.anchors being populated (its own ready-init) — the
+    // immediate unbind must not be the only attempt, or a run() landing in
+    // that window would permanently miss the unbind for the whole page.
     const elementorFrontend = fakeElementorFrontend(undefined)
     vi.stubGlobal('elementorFrontend', elementorFrontend)
 
-    const suppressElementorAnchors = await loadCompat()
+    let deferredHandler: (() => void) | undefined
+    const jQueryObject = {
+      on: vi.fn((event: string, handler: () => void) => {
+        if (event === 'elementor/frontend/init') {
+          deferredHandler = handler
+        }
+      })
+    }
+    const jQuery = vi.fn(() => jQueryObject)
+    vi.stubGlobal('jQuery', jQuery)
 
-    expect(() => suppressElementorAnchors()).not.toThrow()
+    const suppressElementorAnchors = await loadCompat()
+    suppressElementorAnchors()
+
     expect(elementorFrontend.elements.$document.off).not.toHaveBeenCalled()
+    expect(jQueryObject.on).toHaveBeenCalledExactlyOnceWith(
+      'elementor/frontend/init',
+      expect.any(Function)
+    )
+
+    const anchors = fakeAnchorsModule()
+    elementorFrontend.utils.anchors = anchors
+    deferredHandler?.()
+
+    expect(elementorFrontend.elements.$document.off).toHaveBeenCalledExactlyOnceWith(
+      'click',
+      SELECTOR,
+      anchors.handleAnchorLinks
+    )
   })
 })
 
