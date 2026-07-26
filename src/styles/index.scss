@@ -1,0 +1,4 @@
+@use '../../node_modules/lenis/dist/lenis.css';
+@media (prefers-reduced-motion: no-preference) {
+  html.has-smooth-anchors { scroll-behavior: initial; }
+}
