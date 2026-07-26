@@ -169,12 +169,28 @@ class Plugin {
 			return;
 		}
 
-		$boot = array(
+		$editor = $this->is_editor_preview();
+		$boot   = array(
 			'js'     => esc_url_raw( $base_url . '/' . $slug . '.js?ver=' . filemtime( $js ) ),
-			'editor' => $this->is_editor_preview(),
+			'editor' => $editor,
 		);
 
-		$code = 'window.artsSmoothScrollingOptions = ' . wp_json_encode( Options::build() ) . ";\n"
+		$options = Options::build();
+		if ( ! $editor ) {
+			// Reaching this line already proves the effective (filtered)
+			// verdict was true — is_enabled() gated the whole method. Outside
+			// the editor, keep the printed `enabled` in sync with that
+			// verdict rather than Options::build()'s unfiltered kit read, so
+			// a developer forcing this on via `arts/smooth_scrolling/enabled`
+			// while the kit switch is off doesn't get silently undone by
+			// boot.ts's own `if (!currentOptions.enabled)` check. The editor
+			// keeps the raw kit value: its live-toggle (boot.ts's reinit()
+			// via the kit-change bridge) depends on options.enabled tracking
+			// the actual switcher, not the bypassed filter.
+			$options['enabled'] = true;
+		}
+
+		$code = 'window.artsSmoothScrollingOptions = ' . wp_json_encode( $options ) . ";\n"
 			. 'window.artsSmoothScrollingBoot = ' . wp_json_encode( $boot ) . ";\n"
 			. file_get_contents( $gate );
 
