@@ -70,6 +70,16 @@ export const fakeMedia = (matches: boolean) => {
         cb({ matches: current })
       }
     },
+    // Fires a 'change' event with an explicit value rather than toggling —
+    // needed to simulate a redundant/spurious event (e.g. a no-match event
+    // received while already at no-match) without relying on flip()'s
+    // always-toggle semantics.
+    set(matches: boolean) {
+      current = matches
+      for (const cb of [...listeners]) {
+        cb({ matches: current })
+      }
+    },
     get listenerCount() {
       return listeners.size
     }
