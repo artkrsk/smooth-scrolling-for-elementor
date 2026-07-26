@@ -15,54 +15,61 @@ import { mapKitSettings } from './kitSettings'
 
 // Window typings live in global.d.ts (the consumer-facing contract).
 
-let controller: ISmoothScrolling | null = null
+// Idempotence: a global that exists and lacks __resolveReady is already the
+// final, engine-backed object from a prior boot.ts run — mirrors gate.ts's
+// own guard. Prevents a leaked Lenis instance/ticker if the bundle is ever
+// re-executed (e.g. by an AJAX-navigation framework replaying the script).
+const existingGlobal = window.artsSmoothScrolling as IGateGlobal | undefined
+if (!existingGlobal || '__resolveReady' in existingGlobal) {
+  let controller: ISmoothScrolling | null = null
 
-// When the wp_head gate printed, it installed the global at parse time with
-// a pending `ready`; claim its resolver so consumers holding that promise
-// see it resolve. Without a gate, self-create — the pre-gate contract.
-const gate = window.artsSmoothScrolling as IGateGlobal | undefined
-let resolveReady: (controller: ISmoothScrolling) => void
-const ready = gate?.__resolveReady
-  ? gate.ready
-  : new Promise<ISmoothScrolling>((resolve) => {
-      resolveReady = resolve
-    })
-if (gate?.__resolveReady) {
-  resolveReady = gate.__resolveReady
-}
-
-window.artsSmoothScrolling = {
-  ready,
-  get: () => controller,
-  get lenis() {
-    return controller?.lenis ?? null
-  },
-  version: __ARTS_SMOOTH_SCROLLING_VERSION__
-}
-
-// Elementor editor live preview: the PHP-printed bridge in the editor window
-// forwards kit-setting changes into this (preview) window. Inert elsewhere —
-// the event never originates outside the editor.
-window.addEventListener('arts-smooth-scrolling:kit-change', (e) => {
-  const settings = e.detail?.settings
-  if (!settings) {
-    return
+  // When the wp_head gate printed, it installed the global at parse time with
+  // a pending `ready`; claim its resolver so consumers holding that promise
+  // see it resolve. Without a gate, self-create — the pre-gate contract.
+  const gate = existingGlobal
+  let resolveReady: (controller: ISmoothScrolling) => void
+  const ready = gate?.__resolveReady
+    ? gate.ready
+    : new Promise<ISmoothScrolling>((resolve) => {
+        resolveReady = resolve
+      })
+  if (gate?.__resolveReady) {
+    resolveReady = gate.__resolveReady
   }
-  controller?.reinit(mapKitSettings(settings))
-})
 
-const boot = () => {
-  const options = window.artsSmoothScrollingOptions
-  if (!options) {
-    return
+  window.artsSmoothScrolling = {
+    ready,
+    get: () => controller,
+    get lenis() {
+      return controller?.lenis ?? null
+    },
+    version: __ARTS_SMOOTH_SCROLLING_VERSION__
   }
-  controller = createSmoothScrolling(options)
-  controller.init()
-  resolveReady(controller)
-}
 
-if (document.body) {
-  boot()
-} else {
-  document.addEventListener('DOMContentLoaded', boot, { once: true })
+  // Elementor editor live preview: the PHP-printed bridge in the editor window
+  // forwards kit-setting changes into this (preview) window. Inert elsewhere —
+  // the event never originates outside the editor.
+  window.addEventListener('arts-smooth-scrolling:kit-change', (e) => {
+    const settings = e.detail?.settings
+    if (!settings) {
+      return
+    }
+    controller?.reinit(mapKitSettings(settings))
+  })
+
+  const boot = () => {
+    const options = window.artsSmoothScrollingOptions
+    if (!options) {
+      return
+    }
+    controller = createSmoothScrolling(options)
+    controller.init()
+    resolveReady(controller)
+  }
+
+  if (document.body) {
+    boot()
+  } else {
+    document.addEventListener('DOMContentLoaded', boot, { once: true })
+  }
 }

@@ -64,6 +64,10 @@ Not when Disable on Touch Devices is on, which is the default. The inline loader
 
 Turn off Enable in Site Settings, or for conditional or developer control use the `arts/smooth_scrolling/enabled` PHP filter.
 
+= Does it work with AJAX page-transition plugins (Barba.js-based themes, etc.)? =
+
+Not certified yet with 1.0.0. The engine is designed to persist across such transitions rather than re-initialize on every page swap, but this hasn't been tested against specific transitions plugins. If you run into issues, please report them.
+
 == Changelog ==
 
 = 1.0.0 =

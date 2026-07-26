@@ -42,7 +42,7 @@ class Options {
 					'lock'      => false,
 					'force'     => true,
 					'easing'    => self::DEFAULT_EASING === $easing ? 'expo.inOut' : $easing,
-					'duration'  => $duration * 0.8,
+					'duration'  => round( $duration * 0.8, 4 ),
 				),
 			),
 		);

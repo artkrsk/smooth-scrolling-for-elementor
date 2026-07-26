@@ -10,10 +10,13 @@ import { describe, expect, it } from 'vitest'
  */
 
 describe('enabled switcher', () => {
-  it("is on only for the literal 'yes'", () => {
+  it("is on for the literal 'yes', off for present-but-off ''", () => {
     expect(mapKitSettings({ arts_smooth_scrolling_enabled: 'yes' }).enabled).toBe(true)
     expect(mapKitSettings({ arts_smooth_scrolling_enabled: '' }).enabled).toBe(false)
-    expect(mapKitSettings({}).enabled).toBe(false)
+  })
+
+  it('defaults to on when the key was never saved — matches Options::is_kit_enabled()', () => {
+    expect(mapKitSettings({}).enabled).toBe(true)
   })
 
   it('is not fooled by truthy non-yes values', () => {
@@ -28,9 +31,12 @@ describe('disable-touch return_value trick', () => {
     expect(mapKitSettings({ arts_smooth_scrolling_disable_touch: query }).matchMedia).toBe(query)
   })
 
-  it('falls back to empty (always on) when off or absent', () => {
+  it('falls back to empty (always on) when present but off', () => {
     expect(mapKitSettings({ arts_smooth_scrolling_disable_touch: '' }).matchMedia).toBe('')
-    expect(mapKitSettings({}).matchMedia).toBe('')
+  })
+
+  it('defaults to the hover/pointer query when the key was never saved — matches Options::match_media()', () => {
+    expect(mapKitSettings({}).matchMedia).toBe('(hover: hover) and (pointer: fine)')
   })
 })
 

@@ -126,6 +126,23 @@ describe('missing options — no-op boot', () => {
   })
 })
 
+describe('idempotency guard (final global already present)', () => {
+  it('does not replace the global or create a second controller when boot.ts runs again', async () => {
+    window.artsSmoothScrollingOptions = options({ enabled: true, matchMedia: '' })
+
+    await loadBoot()
+    const firstGlobal = window.artsSmoothScrolling
+    const firstController = firstGlobal?.get()
+    expect(firstController).not.toBeNull()
+    expect('__resolveReady' in (firstGlobal as object)).toBe(false)
+
+    await loadBoot()
+
+    expect(window.artsSmoothScrolling).toBe(firstGlobal)
+    expect(window.artsSmoothScrolling?.get()).toBe(firstController)
+  })
+})
+
 describe('kit-change bridge', () => {
   const dispatchKitChange = (settings?: Record<string, unknown>) => {
     window.dispatchEvent(

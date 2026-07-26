@@ -2,8 +2,25 @@ import type { TKitSettings, TOptions } from './types'
 
 const DEFAULT_DURATION = 1.2
 const DEFAULT_EASING = 'expo.out'
+const DEFAULT_DISABLE_TOUCH = '(hover: hover) and (pointer: fine)'
 
-const isOn = (value: unknown): boolean => value === 'yes'
+/** Mirrors PHP Options::is_on() — an absent key (never saved) falls back to
+    `fallback`, distinct from a present-but-off `''`, which is always false. */
+const isOn = (value: unknown, fallback: boolean): boolean => {
+  if (value === undefined) {
+    return fallback
+  }
+  return value === 'yes'
+}
+
+/** Mirrors PHP Options::match_media() — an absent key falls back to the
+    default query; a present value (including '') maps as-is. */
+const matchMediaOf = (value: unknown): string => {
+  if (value === undefined) {
+    return DEFAULT_DISABLE_TOUCH
+  }
+  return typeof value === 'string' ? value : ''
+}
 
 /** Mirrors PHP `is_numeric()` as Options::build() uses it — a blank string is
     NOT numeric. A cleared Elementor slider sends `{ size: '' }`; reading that
@@ -42,8 +59,8 @@ export function mapKitSettings(settings: TKitSettings): TOptions {
   const disableTouch = settings.arts_smooth_scrolling_disable_touch
 
   return {
-    enabled: isOn(settings.arts_smooth_scrolling_enabled),
-    matchMedia: typeof disableTouch === 'string' ? disableTouch : '',
+    enabled: isOn(settings.arts_smooth_scrolling_enabled, true),
+    matchMedia: matchMediaOf(disableTouch),
     prefersGSAPRaf: true,
     lenisOptions: {
       duration,
