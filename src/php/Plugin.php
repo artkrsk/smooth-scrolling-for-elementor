@@ -33,7 +33,18 @@ class Plugin {
 		// belongs instead of above the page's own title.
 		add_action( 'wp_head', array( $this, 'print_head' ), 99 );
 		add_filter( 'language_attributes', array( $this, 'filter_language_attributes' ) );
-		add_action( 'elementor/loaded', array( $this, 'init_elementor' ) );
+
+		// Plugins load alphabetically, and Elementor fires this action during
+		// its OWN load — a plugin sorting after "elementor" (ours does) never
+		// sees the action fire if it only ever add_action()s for it here.
+		// init_elementor()'s own add_action calls target hooks that fire much
+		// later (kit tab registration, editor enqueue), so calling it
+		// immediately when we've missed the boat is safe.
+		if ( did_action( 'elementor/loaded' ) ) {
+			$this->init_elementor();
+		} else {
+			add_action( 'elementor/loaded', array( $this, 'init_elementor' ) );
+		}
 
 		// Only the standalone plugin has a Plugins-page row to attach a link
 		// to — the constant comes from the bootstrap file, absent when src/php
