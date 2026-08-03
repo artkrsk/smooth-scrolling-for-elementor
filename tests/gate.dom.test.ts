@@ -13,7 +13,6 @@ import { fakeMedia } from './support'
 const GATE_JS_ID = 'smooth-scrolling-for-elementor-js'
 
 const options = (over: Partial<TOptions> = {}): TOptions => ({
-  enabled: true,
   matchMedia: '',
   prefersGSAPRaf: true,
   lenisOptions: {
@@ -125,8 +124,8 @@ describe('fail-safe: missing options or boot', () => {
     expect(document.getElementById(GATE_JS_ID)).toBeNull()
   })
 
-  it('predicts inactive without throwing when boot is missing, even if enabled', async () => {
-    window.artsSmoothScrollingOptions = options({ enabled: true, matchMedia: '' })
+  it('predicts inactive without throwing when boot is missing', async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
 
     await expect(loadGate()).resolves.not.toThrow()
 
@@ -144,8 +143,8 @@ describe('fail-safe: missing options or boot', () => {
 })
 
 describe('class prediction', () => {
-  it('predicts active when enabled and matchMedia is empty', async () => {
-    window.artsSmoothScrollingOptions = options({ enabled: true, matchMedia: '' })
+  it('predicts active when matchMedia is empty', async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
     window.artsSmoothScrollingBoot = boot()
 
     await loadGate()
@@ -154,19 +153,9 @@ describe('class prediction', () => {
     expect(hasInactiveClass()).toBe(false)
   })
 
-  it('predicts inactive when disabled, regardless of matchMedia', async () => {
-    window.artsSmoothScrollingOptions = options({ enabled: false, matchMedia: '' })
-    window.artsSmoothScrollingBoot = boot()
-
-    await loadGate()
-
-    expect(hasInactiveClass()).toBe(true)
-    expect(hasActiveClass()).toBe(false)
-  })
-
-  it('predicts active when enabled and the query already matches', async () => {
+  it('predicts active when the query already matches', async () => {
     fakeMedia(true)
-    window.artsSmoothScrollingOptions = options({ enabled: true, matchMedia: '(hover: hover)' })
+    window.artsSmoothScrollingOptions = options({ matchMedia: '(hover: hover)' })
     window.artsSmoothScrollingBoot = boot()
 
     await loadGate()
@@ -174,9 +163,9 @@ describe('class prediction', () => {
     expect(hasActiveClass()).toBe(true)
   })
 
-  it('predicts inactive when enabled but the query does not match yet', async () => {
+  it('predicts inactive when the query does not match yet', async () => {
     fakeMedia(false)
-    window.artsSmoothScrollingOptions = options({ enabled: true, matchMedia: '(hover: hover)' })
+    window.artsSmoothScrollingOptions = options({ matchMedia: '(hover: hover)' })
     window.artsSmoothScrollingBoot = boot()
 
     await loadGate()
@@ -189,7 +178,7 @@ describe('class prediction', () => {
 describe('injection', () => {
   it('injects immediately when boot.editor is true, even if the query does not match', async () => {
     fakeMedia(false)
-    window.artsSmoothScrollingOptions = options({ enabled: true, matchMedia: '(hover: hover)' })
+    window.artsSmoothScrollingOptions = options({ matchMedia: '(hover: hover)' })
     window.artsSmoothScrollingBoot = boot({ editor: true })
 
     await loadGate()

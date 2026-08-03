@@ -2,7 +2,6 @@
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["src/ts/boot.ts", "src/ts/gate.ts", "src/styles/index.scss", "project.config.js"],
   "project": ["src/ts/**/*.ts", "tests/**/*.ts", "src/styles/**/*.{scss,sass}", "build/**/*.js"],
-  "ignore": ["build/extract-changelog.js"],
   "ignoreExportsUsedInFile": true,
   "ignoreBinaries": ["composer"]
 }

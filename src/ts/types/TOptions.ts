@@ -4,7 +4,6 @@ import type { TLenisOptions } from './TLenisOptions'
     parameter. `mapKitSettings()` produces the same shape for the editor's
     live-preview path. */
 export type TOptions = {
-  enabled: boolean
   /** '' = always on. */
   matchMedia: string
   prefersGSAPRaf: boolean

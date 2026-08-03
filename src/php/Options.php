@@ -29,7 +29,6 @@ class Options {
 		$easing   = self::easing_of( 'arts_smooth_scrolling_easing', self::DEFAULT_EASING );
 
 		$options = array(
-			'enabled'        => self::is_kit_enabled(),
 			'matchMedia'     => self::match_media(),
 			// No control for this one — always on, filterable below like every other key.
 			'prefersGSAPRaf' => true,
@@ -52,18 +51,7 @@ class Options {
 		 *
 		 * @param array<string, mixed> $options
 		 */
-		return apply_filters( 'arts/smooth_scrolling/options', $options );
-	}
-
-	/**
-	 * Kit "Enable" switcher, default on. Shared by build()'s `enabled` key
-	 * (which gates the engine client-side, in the editor too — the Site
-	 * Settings live-toggle depends on the raw value landing here unfiltered)
-	 * and Plugin::is_enabled() (which the `arts/smooth_scrolling/enabled`
-	 * filter wraps to decide whether anything prints on the front end).
-	 */
-	public static function is_kit_enabled(): bool {
-		return self::is_on( 'arts_smooth_scrolling_enabled', true );
+		return apply_filters( 'arts_smooth_scrolling/options', $options );
 	}
 
 	/** Raw disable_touch control value: the media query string, or '' once switched off. */
@@ -86,16 +74,6 @@ class Options {
 			return null;
 		}
 		return \Elementor\Plugin::$instance->kits_manager->get_current_settings( $key );
-	}
-
-	private static function is_on( string $key, bool $default ): bool {
-		$value = self::kit_value( $key );
-		if ( null === $value || '' === $value ) {
-			// Switchers store '' for off once touched; distinguish never-saved
-			// (null) from off ('') — Elementor returns '' for saved-off.
-			return null === $value ? $default : false;
-		}
-		return 'yes' === $value;
 	}
 
 	private static function size_of( string $key, float $default ): float {

@@ -10,7 +10,7 @@ import { createTopAnchors } from './topAnchors'
 
 /**
  * Owns the engine lifecycle: creates/destroys Lenis (plus its driver, sync,
- * and anchor listener) as `enabled` and the `matchMedia` query dictate.
+ * and anchor listener) as the `matchMedia` query dictates.
  * `lifecycle` doubles as the synchronous reentrancy guard — `init()`/
  * `destroy()` while already initialized/torn down are no-ops rather than
  * queued (no v1 async queue).
@@ -53,11 +53,6 @@ export function createSmoothScrolling(options: TOptions): ISmoothScrolling {
         return
       }
       lifecycle = new AbortController()
-
-      if (!currentOptions.enabled) {
-        applyDomState(false)
-        return
-      }
 
       if (currentOptions.matchMedia === '') {
         run()

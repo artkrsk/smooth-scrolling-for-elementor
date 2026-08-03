@@ -12,7 +12,6 @@ import { afterEach, describe, expect, it } from 'vitest'
  */
 
 const baseOptions = (over: Partial<TOptions['lenisOptions']> = {}): TOptions => ({
-  enabled: true,
   matchMedia: '',
   prefersGSAPRaf: true,
   lenisOptions: {

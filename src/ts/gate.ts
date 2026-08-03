@@ -43,9 +43,9 @@ if (!window.artsSmoothScrolling) {
   if (!options || !boot) {
     predict(false)
   } else {
-    const { enabled, matchMedia: query } = options
+    const { matchMedia: query } = options
     const matchesNow = query === '' || window.matchMedia(query).matches
-    predict(enabled && matchesNow)
+    predict(matchesNow)
 
     const inject = () => {
       if (document.getElementById('smooth-scrolling-for-elementor-js')) {
@@ -64,7 +64,7 @@ if (!window.artsSmoothScrolling) {
       // matchesNow is only false when query is non-empty, so this is real.
       const mql = window.matchMedia(query)
       const onChange = (event: MediaQueryListEvent) => {
-        predict(enabled && event.matches)
+        predict(event.matches)
         if (event.matches) {
           mql.removeEventListener('change', onChange)
           inject()

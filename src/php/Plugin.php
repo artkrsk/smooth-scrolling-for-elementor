@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Plugin {
 	private static ?Plugin $instance = null;
 
-	/** Memoized `arts/smooth_scrolling/enabled` verdict for this request. */
+	/** Memoized `arts_smooth_scrolling/enabled` verdict for this request. */
 	private ?bool $enabled = null;
 
 	public static function instance(): Plugin {
@@ -159,8 +159,8 @@ class Plugin {
 	 * every transition, and a head tag is invisible to that lookup anyway.
 	 *
 	 * Options ride the same block as inline JSON, not wp_localize_script:
-	 * localize string-casts scalars (`enabled: false` would become "",
-	 * defeating boot.ts's `if (!currentOptions.enabled)` check); json_encode
+	 * localize string-casts scalars (`prefersGSAPRaf: true` would become
+	 * "1", `anchors.immediate: false` would become ""); json_encode
 	 * preserves types.
 	 */
 	public function print_head(): void {
@@ -187,19 +187,6 @@ class Plugin {
 		);
 
 		$options = Options::build();
-		if ( ! $editor ) {
-			// Reaching this line already proves the effective (filtered)
-			// verdict was true — is_enabled() gated the whole method. Outside
-			// the editor, keep the printed `enabled` in sync with that
-			// verdict rather than Options::build()'s unfiltered kit read, so
-			// a developer forcing this on via `arts/smooth_scrolling/enabled`
-			// while the kit switch is off doesn't get silently undone by
-			// boot.ts's own `if (!currentOptions.enabled)` check. The editor
-			// keeps the raw kit value: its live-toggle (boot.ts's reinit()
-			// via the kit-change bridge) depends on options.enabled tracking
-			// the actual switcher, not the bypassed filter.
-			$options['enabled'] = true;
-		}
 
 		$code = 'window.artsSmoothScrollingOptions = ' . wp_json_encode( $options ) . ";\n"
 			. 'window.artsSmoothScrollingBoot = ' . wp_json_encode( $boot ) . ";\n"
@@ -221,22 +208,21 @@ class Plugin {
 	}
 
 	/**
-	 * Lazily memoized `arts/smooth_scrolling/enabled` verdict — evaluated
+	 * Lazily memoized `arts_smooth_scrolling/enabled` verdict — evaluated
 	 * once per request, shared by the <html> class filter and print_head().
-	 * The editor preview bypasses the filter (and the kit "Enable" switcher)
-	 * entirely: it is the product's showroom, and the live-toggle in Site
-	 * Settings needs the engine loaded so it can react to a kit-change event
-	 * — see Options::build()'s `enabled` key and boot.ts's reinit() path.
+	 * The editor preview bypasses the filter entirely: it is the product's
+	 * showroom, and the live-toggle in Site Settings needs the engine loaded
+	 * so it can react to a kit-change event.
 	 */
 	private function is_enabled(): bool {
 		return $this->enabled ??= $this->is_editor_preview()
-			|| (bool) apply_filters( 'arts/smooth_scrolling/enabled', Options::is_kit_enabled() );
+			|| (bool) apply_filters( 'arts_smooth_scrolling/enabled', true );
 	}
 
 	/**
-	 * A request disabled via the kit switcher or `arts/smooth_scrolling/enabled`
-	 * still gets `no-smooth-scroll` on <html>: the class pair is the documented
-	 * "which world" signal, and a page carrying neither class would be a third
+	 * A request disabled via `arts_smooth_scrolling/enabled` still gets
+	 * `no-smooth-scroll` on <html>: the class pair is the documented "which
+	 * world" signal, and a page carrying neither class would be a third
 	 * state no CSS consumer handles. It cannot ride the gate (which simply
 	 * doesn't print when disabled) and cannot wait for wp_head —
 	 * language_attributes renders inside the <html> tag itself. Guarded on

@@ -9,22 +9,6 @@ import { describe, expect, it } from 'vitest'
  * whole `anchors` block on every call (the live-preview gap v1 had).
  */
 
-describe('enabled switcher', () => {
-  it("is on for the literal 'yes', off for present-but-off ''", () => {
-    expect(mapKitSettings({ arts_smooth_scrolling_enabled: 'yes' }).enabled).toBe(true)
-    expect(mapKitSettings({ arts_smooth_scrolling_enabled: '' }).enabled).toBe(false)
-  })
-
-  it('defaults to on when the key was never saved — matches Options::is_kit_enabled()', () => {
-    expect(mapKitSettings({}).enabled).toBe(true)
-  })
-
-  it('is not fooled by truthy non-yes values', () => {
-    expect(mapKitSettings({ arts_smooth_scrolling_enabled: true }).enabled).toBe(false)
-    expect(mapKitSettings({ arts_smooth_scrolling_enabled: 1 }).enabled).toBe(false)
-  })
-})
-
 describe('disable-touch return_value trick', () => {
   it('uses the raw string value as the matchMedia query', () => {
     const query = '(hover: hover) and (pointer: fine)'

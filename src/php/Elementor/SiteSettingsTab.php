@@ -42,27 +42,12 @@ class SiteSettingsTab extends Tab_Base {
 		$this->add_section_smooth_scrolling();
 	}
 
-	/** @return array<string, string> */
-	private function condition_enabled(): array {
-		return array( 'arts_smooth_scrolling_enabled' => 'yes' );
-	}
-
 	private function add_section_smooth_scrolling(): void {
 		$this->start_controls_section(
 			'arts_smooth_scrolling_section',
 			array(
 				'label' => esc_html__( 'Smooth Scrolling', 'smooth-scrolling-for-elementor' ),
 				'tab'   => $this->get_id(),
-			)
-		);
-
-		$this->add_control(
-			'arts_smooth_scrolling_enabled',
-			array(
-				'label'               => esc_html__( 'Enable', 'smooth-scrolling-for-elementor' ),
-				'type'                => Controls_Manager::SWITCHER,
-				'default'             => 'yes',
-				'frontend_available'  => true,
 			)
 		);
 
@@ -75,7 +60,6 @@ class SiteSettingsTab extends Tab_Base {
 				'type'                => Controls_Manager::SWITCHER,
 				'return_value'        => '(hover: hover) and (pointer: fine)',
 				'default'             => '(hover: hover) and (pointer: fine)',
-				'condition'           => $this->condition_enabled(),
 				'frontend_available'  => true,
 			)
 		);
@@ -97,7 +81,6 @@ class SiteSettingsTab extends Tab_Base {
 					'unit' => 'seconds',
 					'size' => 1.2,
 				),
-				'condition'           => $this->condition_enabled(),
 				'frontend_available'  => true,
 			)
 		);
@@ -112,7 +95,6 @@ class SiteSettingsTab extends Tab_Base {
 					'linear'   => esc_html__( 'Linear', 'smooth-scrolling-for-elementor' ),
 				),
 				'default'             => 'expo.out',
-				'condition'           => $this->condition_enabled(),
 				'frontend_available'  => true,
 			)
 		);

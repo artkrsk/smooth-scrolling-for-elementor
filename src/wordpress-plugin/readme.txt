@@ -26,7 +26,7 @@ Turn it on, tune the duration and easing, and the rest of the site keeps working
 
 = Configuration =
 
-Everything lives in one tab: Elementor → Site Settings → Smooth Scrolling. Enable/disable, duration, easing (Expo Out or Linear), and the disable-on-touch switch. Changes apply live in the editor preview.
+Everything lives in one tab: Elementor → Site Settings → Smooth Scrolling. Duration, easing (Expo Out or Linear), and the disable-on-touch switch. Changes apply live in the editor preview.
 
 = Footprint =
 
@@ -62,7 +62,7 @@ Not when Disable on Touch Devices is on, which is the default. The inline loader
 
 = How do I turn it off? =
 
-Turn off Enable in Site Settings, or for conditional or developer control use the `arts/smooth_scrolling/enabled` PHP filter.
+Deactivate the plugin, or for conditional control use the `arts_smooth_scrolling/enabled` PHP filter.
 
 = Does it work with AJAX page-transition plugins (Barba.js-based themes, etc.)? =
 

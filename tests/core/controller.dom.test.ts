@@ -15,7 +15,6 @@ import { fakeMedia } from '../support'
  */
 
 const options = (over: Partial<TOptions> = {}): TOptions => ({
-  enabled: true,
   matchMedia: '',
   prefersGSAPRaf: true,
   lenisOptions: {
@@ -40,25 +39,6 @@ afterEach(() => {
   engine = null
   document.documentElement.className = ''
   vi.unstubAllGlobals()
-})
-
-describe('disabled', () => {
-  it('applies the disabled DOM state and never creates a Lenis instance', () => {
-    engine = createSmoothScrolling(options({ enabled: false }))
-
-    engine.init()
-
-    expect(document.documentElement.classList.contains('no-smooth-scroll')).toBe(true)
-    expect(document.documentElement.classList.contains('has-smooth-scroll')).toBe(false)
-    expect(engine.lenis).toBeNull()
-  })
-
-  it('stays idle: destroy() after a disabled init is a safe no-op', () => {
-    engine = createSmoothScrolling(options({ enabled: false }))
-    engine.init()
-
-    expect(() => engine?.destroy()).not.toThrow()
-  })
 })
 
 describe('matchMedia empty string — always on', () => {
@@ -167,15 +147,17 @@ describe('destroy', () => {
 })
 
 describe('reinit', () => {
-  it('destroys the old engine and boots a new one with the next options', () => {
-    engine = createSmoothScrolling(options({ enabled: false }))
+  it("tears down the running engine when the next reinit's query no longer matches", () => {
+    fakeMedia(true)
+    engine = createSmoothScrolling(options({ matchMedia: '(hover: hover)' }))
     engine.init()
-    expect(engine.lenis).toBeNull()
-
-    engine.reinit(options({ enabled: true, matchMedia: '' }))
-
     expect(engine.lenis).not.toBeNull()
-    expect(document.documentElement.classList.contains('has-smooth-scroll')).toBe(true)
+
+    fakeMedia(false)
+    engine.reinit(options({ matchMedia: '(hover: hover)' }))
+
+    expect(engine.lenis).toBeNull()
+    expect(document.documentElement.classList.contains('no-smooth-scroll')).toBe(true)
   })
 
   it('picks up a changed matchMedia query on the next reinit', () => {

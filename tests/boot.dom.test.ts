@@ -13,7 +13,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
  */
 
 const options = (over: Partial<TOptions> = {}): TOptions => ({
-  enabled: true,
   matchMedia: '',
   prefersGSAPRaf: true,
   lenisOptions: {
@@ -52,7 +51,7 @@ afterEach(() => {
 
 describe('self-created ready (no gate present)', () => {
   it('installs the discovery global and boots immediately when document.body exists', async () => {
-    window.artsSmoothScrollingOptions = options({ enabled: false })
+    window.artsSmoothScrollingOptions = options()
 
     await loadBoot()
 
@@ -81,7 +80,7 @@ describe('claiming the gate resolver', () => {
       __resolveReady: resolve
     }
     window.artsSmoothScrolling = gate
-    window.artsSmoothScrollingOptions = options({ enabled: false })
+    window.artsSmoothScrollingOptions = options()
 
     await loadBoot()
 
@@ -94,7 +93,7 @@ describe('claiming the gate resolver', () => {
 
 describe('boot timing', () => {
   it('boots immediately when document.body exists', async () => {
-    window.artsSmoothScrollingOptions = options({ enabled: false })
+    window.artsSmoothScrollingOptions = options()
 
     await loadBoot()
 
@@ -105,7 +104,7 @@ describe('boot timing', () => {
     const body = document.body
     body.remove()
     expect(document.body).toBeNull()
-    window.artsSmoothScrollingOptions = options({ enabled: false })
+    window.artsSmoothScrollingOptions = options()
 
     await loadBoot()
     expect(window.artsSmoothScrolling?.get()).toBeNull()
@@ -128,7 +127,7 @@ describe('missing options — no-op boot', () => {
 
 describe('idempotency guard (final global already present)', () => {
   it('does not replace the global or create a second controller when boot.ts runs again', async () => {
-    window.artsSmoothScrollingOptions = options({ enabled: true, matchMedia: '' })
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
 
     await loadBoot()
     const firstGlobal = window.artsSmoothScrolling
@@ -151,13 +150,13 @@ describe('kit-change bridge', () => {
   }
 
   it('reinitializes the controller with mapped options on a kit-change event', async () => {
-    window.artsSmoothScrollingOptions = options({ enabled: true, matchMedia: '' })
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
     await loadBoot()
 
     const before = window.artsSmoothScrolling?.lenis
     expect(before).not.toBeNull()
 
-    dispatchKitChange({ arts_smooth_scrolling_enabled: 'yes' })
+    dispatchKitChange({ arts_smooth_scrolling_duration: { size: 2, unit: 'seconds' } })
 
     const after = window.artsSmoothScrolling?.lenis
     expect(after).not.toBeNull()
@@ -165,7 +164,7 @@ describe('kit-change bridge', () => {
   })
 
   it('guards against a missing detail.settings — no reinit occurs', async () => {
-    window.artsSmoothScrollingOptions = options({ enabled: true, matchMedia: '' })
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
     await loadBoot()
 
     const before = window.artsSmoothScrolling?.lenis
@@ -177,12 +176,14 @@ describe('kit-change bridge', () => {
 
   it('is a safe no-op when the controller has not booted yet', async () => {
     document.body.remove()
-    window.artsSmoothScrollingOptions = options({ enabled: true, matchMedia: '' })
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
 
     await loadBoot()
     expect(window.artsSmoothScrolling?.get()).toBeNull()
 
-    expect(() => dispatchKitChange({ arts_smooth_scrolling_enabled: 'yes' })).not.toThrow()
+    expect(() =>
+      dispatchKitChange({ arts_smooth_scrolling_duration: { size: 2, unit: 'seconds' } })
+    ).not.toThrow()
 
     document.documentElement.appendChild(document.createElement('body'))
     document.dispatchEvent(new Event('DOMContentLoaded'))

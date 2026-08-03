@@ -4,15 +4,6 @@ const DEFAULT_DURATION = 1.2
 const DEFAULT_EASING = 'expo.out'
 const DEFAULT_DISABLE_TOUCH = '(hover: hover) and (pointer: fine)'
 
-/** Mirrors PHP Options::is_on() — an absent key (never saved) falls back to
-    `fallback`, distinct from a present-but-off `''`, which is always false. */
-const isOn = (value: unknown, fallback: boolean): boolean => {
-  if (value === undefined) {
-    return fallback
-  }
-  return value === 'yes'
-}
-
 /** Mirrors PHP Options::match_media() — an absent key falls back to the
     default query; a present value (including '') maps as-is. */
 const matchMediaOf = (value: unknown): string => {
@@ -59,7 +50,6 @@ export function mapKitSettings(settings: TKitSettings): TOptions {
   const disableTouch = settings.arts_smooth_scrolling_disable_touch
 
   return {
-    enabled: isOn(settings.arts_smooth_scrolling_enabled, true),
     matchMedia: matchMediaOf(disableTouch),
     prefersGSAPRaf: true,
     lenisOptions: {
