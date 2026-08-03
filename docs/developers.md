@@ -24,10 +24,10 @@ Two consumer patterns:
 window.artsSmoothScrolling?.get()?.lenis?.scrollTo('#pricing')
 
 // Await — right when a script needs the running instance and can wait for it.
-const controller = await window.artsSmoothScrolling.ready
+const controller = await window.artsSmoothScrolling?.ready
 ```
 
-`ready` only resolves once the engine actually starts, so it never resolves on a touch device with the default disable-touch setting, or on a request the `arts_smooth_scrolling/enabled` filter turns off. `get()` and the `lenis` getter are the synchronous escape hatch for code that has to handle "not running" as a normal case rather than waiting on a promise that may never settle.
+`ready` only resolves once the engine actually starts, and the two ways it doesn't are different shapes: on a touch device with the default disable-touch setting, the gate still runs and installs the global, but `ready` stays pending forever because the engine bundle never loads. On a request the `arts_smooth_scrolling/enabled` filter turns off, the gate itself never prints — `window.artsSmoothScrolling` doesn't exist at all, so an unguarded `.ready` access throws. Always reach it through optional chaining, as above. `get()` and the `lenis` getter are the synchronous escape hatch for code that has to handle "not running" as a normal case rather than waiting on a promise that may never settle.
 
 ## Server-side filters
 
@@ -85,7 +85,7 @@ controller.lenis?.on('scroll', ({ scroll, progress }) => {
 
 ## CSS
 
-Exactly one of `has-smooth-scroll` / `no-smooth-scroll` is always present on `<html>`: set pre-paint from the `matchMedia` prediction, corrected by the engine if reality differs, flipped to `no-` on asset failure, and printed server-side when the request is disabled via the PHP filter. `has-smooth-anchors` tracks the same state — anchors have no independent toggle in this plugin. Key any fallback styling off these three classes; a touch device, a filtered request and a broken deploy all land in the same, handled state.
+Exactly one of `has-smooth-scroll` / `no-smooth-scroll` is always present on `<html>`: set pre-paint from the `matchMedia` prediction, corrected by the engine if reality differs, flipped to `no-` on asset failure, and printed server-side when the request is disabled via the PHP filter. `has-smooth-anchors` is added once the engine is running, alongside `has-smooth-scroll` — anchors have no independent toggle in this plugin. Key any fallback styling off these three classes; a touch device, a filtered request and a broken deploy all land in the same, handled state.
 
 Beyond that, the plugin ships Lenis's own stylesheet as-is (`lenis-*` classes on the scrolling elements) — see [Lenis's docs](https://github.com/darkroomengineering/lenis) for what those do.
 
