@@ -201,7 +201,13 @@ class Plugin {
 				'nowprocket'       => true,
 			)
 		);
+		// The CSS is our own compiled build artifact, read from disk inside the
+		// plugin directory — never user input. Escaping functions would corrupt
+		// it (esc_html turns `>` combinators into entities, which a <style> tag
+		// renders literally), and there is no core equivalent of
+		// wp_print_inline_script_tag() for styles.
 		echo '<style data-no-optimize="1" data-cfasync="false" nowprocket>'
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Compiled stylesheet shipped with the plugin, see above.
 			. file_get_contents( $css )
 			. "</style>\n";
 		echo "<!--/noptimize-->\n";
