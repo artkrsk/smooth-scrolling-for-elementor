@@ -153,9 +153,10 @@ class Plugin {
 	 * Elementor there is no Site Settings tab to configure this from, so the
 	 * plugin stays fully inert rather than running on hardcoded defaults.
 	 *
-	 * The markers are per-plugin opt-outs, none honored by the others:
+	 * The markers are per-optimizer opt-outs — no single one covers them all:
 	 * noptimize comments (Autoptimize), data-no-optimize (LiteSpeed),
-	 * data-cfasync (Cloudflare Rocket Loader), nowprocket (WP Rocket). The
+	 * data-cfasync (Cloudflare Rocket Loader, also honored by Autoptimize and
+	 * LiteSpeed), nowprocket (WP Rocket). The
 	 * script tag carries NO id, for the same AJAX-transitions replay reason
 	 * every Arts plugin's gate does: id'd head scripts get re-executed on
 	 * every transition, and a head tag is invisible to that lookup anyway.

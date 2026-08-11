@@ -18,7 +18,7 @@ import type { TGateBoot, TKitSettings, TOptions } from './types'
 declare global {
   interface Window {
     artsSmoothScrolling?: IArtsSmoothScrollingGlobal
-    /** Read once by boot.ts. */
+    /** Read by gate.ts (class prediction) and boot.ts (engine options). */
     artsSmoothScrollingOptions?: TOptions
     /** Read by gate.ts at parse and at load time. Absent outside WordPress. */
     artsSmoothScrollingBoot?: TGateBoot

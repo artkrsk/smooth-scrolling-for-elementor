@@ -1,6 +1,6 @@
 // The esbuild plugin bundle substitutes import.meta.env.DEV via `define`
-// (true in the dev channel, false in production, where the guarded blocks
-// are dropped). Optional access keeps the checks safe when no define is set.
+// (true in the dev channel, false in production). Optional access keeps any
+// such check safe when no define is set; no src/ts module reads DEV today.
 interface ImportMeta {
   env?: { DEV?: boolean }
 }

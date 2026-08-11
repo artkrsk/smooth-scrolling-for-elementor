@@ -1,12 +1,12 @@
 import { vi } from 'vitest'
 
 /**
- * Force the shipped code path. The engine guards its dev-only diagnostics with
- * `import.meta.env?.DEV`, and the optional access is deliberate (see env.d.ts) —
- * but Vite's `define` matches the literal `import.meta.env.DEV` member
- * expression only, so a define never reaches the `?.` form and every test used
- * to run the dev branches instead of the ones that ship. esbuild does substitute
- * the optional chain, so the plugin bundle was never affected; this closes the
- * gap on the Vitest side, where the value is a real runtime object.
+ * Force the shipped code path. The plugin bundle defines import.meta.env.DEV
+ * (false in production — build/js.js), but Vite's `define` matches the literal
+ * `import.meta.env.DEV` member expression only and never reaches the optional
+ * `import.meta.env?.DEV` form env.d.ts types; under Vitest the env is a real
+ * runtime object, so it is stubbed here instead. No src/ts module reads DEV
+ * today — this keeps any future guard running the production branch in tests
+ * by default.
  */
 vi.stubEnv('DEV', false)

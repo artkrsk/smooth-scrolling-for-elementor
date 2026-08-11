@@ -8,8 +8,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
  * boot.ts is a side-effect-on-import module (the WordPress plugin entry), so
  * every test resets the module registry and re-imports fresh. Runs against
  * the REAL controller/Lenis (happy-dom provides the ResizeObserver Lenis
- * needs), matching Phase 1's controller.dom.test.ts approach — the point is
- * to prove the wiring, not just that boot.ts calls mocked stand-ins.
+ * needs), matching controller.dom.test.ts's approach — the point is to
+ * prove the wiring, not just that boot.ts calls mocked stand-ins.
  */
 
 const options = (over: Partial<TOptions> = {}): TOptions => ({

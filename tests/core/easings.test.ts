@@ -2,9 +2,9 @@ import { expoInOut, expoOut, linear, resolveEasing } from '@ts/core/easings'
 import { describe, expect, it } from 'vitest'
 
 /**
- * Exact math ported from v1's Easing.ts (see task-1-brief.md), plus the
- * name -> function lookup that lets an unknown easing name fall back to
- * Lenis's own default instead of throwing.
+ * Exact math ported from v1's Easing.ts, plus the name -> function lookup
+ * that lets an unknown easing name fall back to Lenis's own default instead
+ * of throwing.
  */
 
 describe('linear', () => {

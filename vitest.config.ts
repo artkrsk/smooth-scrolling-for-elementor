@@ -2,11 +2,8 @@ import path from 'node:path'
 import { defineConfig } from 'vitest/config'
 
 /**
- * The docs site carries its own Vite config (docs/.vitepress/config.mts);
- * this file configures Vitest alone.
- *
- * `node` is the default environment because most of the engine — the frame
- * path, options, the scale grammar, the pure deciders — needs no DOM, and a
+ * `node` is the default environment because the pure suites — easing math,
+ * the kit-settings mapping, the alias-boundary guard — need no DOM, and a
  * node default makes an accidental `document` reach fail loudly instead of
  * passing against a fake. Files that need a DOM opt in with a
  * `// @vitest-environment happy-dom` docblock (jsdom is not an option: it has
