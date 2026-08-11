@@ -15,7 +15,9 @@ Lenis-powered momentum scrolling for Elementor, with automatic GSAP ScrollTrigge
 
 Smooth Scrolling adds Lenis-powered momentum scrolling to your Elementor site: the page glides to a stop instead of snapping, in-page anchor links animate to their target, and GSAP's ScrollTrigger stays in sync automatically when it's on the page.
 
-Turn it on, tune the duration and easing, and the rest of the site keeps working as before — Elementor Sticky, dynamic content, everything.
+It works the moment you activate it — there's nothing to switch on. Tune the duration and easing to taste, and the rest of the site keeps working as before — Elementor Sticky, dynamic content, everything.
+
+Scrolling is powered by Lenis (MIT) by darkroom.engineering, compiled into the plugin's own bundle.
 
 = What it does =
 
@@ -36,7 +38,7 @@ A small inline loader sets the page's scroll state synchronously and fetches the
 
 1. Install and activate Elementor (the free version is fine).
 2. Install and activate Arts Smooth Scrolling for Elementor.
-3. Open Elementor's Site Settings and find the Smooth Scrolling tab to enable it and tune duration and easing.
+3. Browse your site. Smooth scrolling is already running. To tune duration and easing, open Elementor's Site Settings and find the Smooth Scrolling tab.
 
 == Frequently Asked Questions ==
 

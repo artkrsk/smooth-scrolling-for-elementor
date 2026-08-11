@@ -79,12 +79,18 @@ export async function loadCtx() {
     throw new Error('composer.json plugin["Plugin Name"] is required (display name source)')
   }
 
+  // Lenis is compiled into both bundles (its JS via lenisFactory.ts, its stylesheet
+  // via index.scss), and MIT wants its notice carried along — see the plugin's
+  // third-party-licenses.txt for the full text this line points at.
   const banner = [
     '/*!',
     ` * ${header['Plugin Name']} v${composer.version}`,
     ` * © ${new Date().getFullYear()} ${header.Author}`.trimEnd(),
     ` * License: ${header.License}`,
     ` * ${header['Plugin URI']}`.trimEnd(),
+    ' *',
+    ' * Bundles Lenis (MIT) © 2024 darkroom.engineering',
+    ' * https://github.com/darkroomengineering/lenis',
     ' */'
   ].join('\n')
 
