@@ -1,4 +1,4 @@
-import type { IElementorFrontend } from '../interfaces'
+import type { IElementorFrontend, IJQueryStatic } from '../interfaces'
 
 /** Guards suppressElementorAnchors() so its detect+unbind path runs once per
     page load — repeated controller run() cycles (media flips, editor
@@ -38,18 +38,25 @@ export function suppressElementorAnchors(): void {
   }
   hasRun = true
 
-  const elementorFrontend = window.elementorFrontend
+  // Runtime-detected, never bundled: read via a local cast so this module
+  // type-checks standalone for consumers who compile our source directly.
+  const foreignWindow = window as Window & {
+    elementorFrontend?: IElementorFrontend
+    jQuery?: IJQueryStatic
+  }
+
+  const elementorFrontend = foreignWindow.elementorFrontend
   if (elementorFrontend && unbindAnchors(elementorFrontend)) {
     return
   }
 
-  const jQuery = window.jQuery
+  const jQuery = foreignWindow.jQuery
   if (!jQuery) {
     return
   }
 
   jQuery(window).on('elementor/frontend/init', () => {
-    const frontend = window.elementorFrontend
+    const frontend = foreignWindow.elementorFrontend
     if (frontend) {
       unbindAnchors(frontend)
     }

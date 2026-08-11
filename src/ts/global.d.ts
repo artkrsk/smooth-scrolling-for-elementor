@@ -1,16 +1,19 @@
-import type {
-  IArtsSmoothScrollingGlobal,
-  IElementorFrontend,
-  IGsap,
-  IJQueryStatic,
-  IScrollTrigger
-} from './interfaces'
+import type { IArtsSmoothScrollingGlobal } from './interfaces'
 import type { TGateBoot, TKitSettings, TOptions } from './types'
 
 /**
  * Consumer-facing discovery contract. Consumers with an npm reference to this
  * package type their own Window declaration via
  * `import type { IArtsSmoothScrollingGlobal } from '@arts/smooth-scrolling'`.
+ *
+ * This file augments `Window` only for our own entries (gate.ts/boot.ts) —
+ * consumers never compile or load it. `package.json`'s `types` field points
+ * straight at `src/ts/index.ts` (no d.ts build step), so any module reachable
+ * from that entry is compiled raw by consumers, who never pick up this
+ * augmentation. Modules under `src/ts` (anything `index.ts` imports,
+ * transitively) must therefore stay self-contained: foreign runtime globals
+ * (gsap, ScrollTrigger, elementorFrontend, jQuery, …) are read through a
+ * locally-typed cast at the read site instead of being declared here.
  */
 declare global {
   interface Window {
@@ -19,14 +22,6 @@ declare global {
     artsSmoothScrollingOptions?: TOptions
     /** Read by gate.ts at parse and at load time. Absent outside WordPress. */
     artsSmoothScrollingBoot?: TGateBoot
-    /** Runtime-detected, never bundled — see core/rafDriver.ts. */
-    gsap?: IGsap
-    /** Runtime-detected, never bundled — see core/scrollTriggerSync.ts. */
-    ScrollTrigger?: IScrollTrigger
-    /** Runtime-detected, never bundled — see core/elementorCompat.ts. */
-    elementorFrontend?: IElementorFrontend
-    /** Runtime-detected, never bundled — see core/elementorCompat.ts. */
-    jQuery?: IJQueryStatic
   }
 
   interface WindowEventMap {

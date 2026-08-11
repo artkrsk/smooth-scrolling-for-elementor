@@ -1,5 +1,5 @@
 import type Lenis from 'lenis'
-import type { IRafDriver } from '../interfaces'
+import type { IGsap, IRafDriver } from '../interfaces'
 
 /**
  * Drives `lenis.raf(ms)` every frame. Prefers GSAP's ticker (prioritized,
@@ -7,7 +7,10 @@ import type { IRafDriver } from '../interfaces'
  * otherwise runs an internal rAF loop.
  */
 export function createRafDriver(lenis: Lenis, prefersGSAPRaf: boolean): IRafDriver {
-  const gsap = prefersGSAPRaf ? window.gsap : undefined
+  // Runtime-detected, never bundled: read via a local cast so this module
+  // type-checks standalone for consumers who compile our source directly.
+  const foreignWindow = window as Window & { gsap?: IGsap }
+  const gsap = prefersGSAPRaf ? foreignWindow.gsap : undefined
 
   if (gsap) {
     const update = (time: number) => {
