@@ -7,7 +7,7 @@
  * Author URI: https://artemsemkin.com
  * License: GPLv3
  * License URI: https://www.gnu.org/licenses/gpl-3.0
- * Requires at least: 6.0
+ * Requires at least: 6.2
  * Requires PHP: 8.0
  * Requires Plugins: elementor
  * Text Domain: smooth-scrolling-for-elementor
