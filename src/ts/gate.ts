@@ -2,11 +2,11 @@
  * Inline pre-paint gate — printed into `wp_head` by PHP, never enqueued,
  * with the options global and boot descriptor printed just before it in the
  * same script tag so both are readable synchronously. Owns the parse-time
- * discovery global and the <html> class prediction, then injects the engine
- * bundle immediately (editor preview, unrestricted media, or an
- * already-matching media query) or on the first matching `matchMedia`
- * change otherwise. The engine corrects the prediction at real init
- * (domState).
+ * discovery global and the <html> class prediction, then injects the
+ * stylesheet followed by the engine bundle (editor preview, unrestricted
+ * media, or an already-matching media query) or on the first matching
+ * `matchMedia` change otherwise. The engine corrects the prediction at real
+ * init (domState).
  */
 
 import type { IGateGlobal, ISmoothScrolling } from './interfaces'
@@ -48,14 +48,33 @@ if (!window.artsSmoothScrolling) {
     predict(matchesNow)
 
     const inject = () => {
-      if (document.getElementById('smooth-scrolling-for-elementor-js')) {
+      if (
+        document.getElementById('smooth-scrolling-for-elementor-css') ||
+        document.getElementById('smooth-scrolling-for-elementor-js')
+      ) {
         return
       }
-      const script = document.createElement('script')
-      script.id = 'smooth-scrolling-for-elementor-js'
-      script.src = boot.js
-      script.onerror = () => predict(false)
-      document.head.appendChild(script)
+      const link = document.createElement('link')
+      link.id = 'smooth-scrolling-for-elementor-css'
+      link.rel = 'stylesheet'
+      link.href = boot.css
+      // Chained on purpose: Lenis can only add `.lenis` to <html> once its
+      // required stylesheet is present, and a CSS 404 must stop the engine
+      // from booting instead of running unstyled.
+      link.onload = () => {
+        // onload can fire more than once (a moved link re-fires it) — guard
+        // against a second script tag.
+        if (document.getElementById('smooth-scrolling-for-elementor-js')) {
+          return
+        }
+        const script = document.createElement('script')
+        script.id = 'smooth-scrolling-for-elementor-js'
+        script.src = boot.js
+        script.onerror = () => predict(false)
+        document.head.appendChild(script)
+      }
+      link.onerror = () => predict(false)
+      document.head.appendChild(link)
     }
 
     if (boot.editor || matchesNow) {

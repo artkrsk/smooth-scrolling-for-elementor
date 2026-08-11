@@ -8,8 +8,17 @@ import { fakeMedia } from './support'
  * gate.ts is a side-effect-on-import module (the inline wp_head script), so
  * every test resets the module registry and re-imports fresh — the only way
  * to exercise a different window-global starting state per test.
+ *
+ * The css→js chain is driven by firing the injected link's onload/onerror BY
+ * HAND rather than disabling happy-dom's resource loader: a disabled loader
+ * with handleDisabledFileLoadingAsSuccess dispatches synchronously during
+ * appendChild, which would fire onload before a test gets a chance to assert
+ * the "script not yet present" state. Left at its default, happy-dom's real
+ * fetch of the fake .test host lands asynchronously — after each test's sync
+ * assertions — so only the hand-fired events are ever observed here.
  */
 
+const GATE_CSS_ID = 'smooth-scrolling-for-elementor-css'
 const GATE_JS_ID = 'smooth-scrolling-for-elementor-js'
 
 const options = (over: Partial<TOptions> = {}): TOptions => ({
@@ -32,6 +41,7 @@ const options = (over: Partial<TOptions> = {}): TOptions => ({
 
 const boot = (over: Partial<TGateBoot> = {}): TGateBoot => ({
   js: 'https://example.test/smooth-scrolling-for-elementor.js',
+  css: 'https://example.test/smooth-scrolling-for-elementor.css',
   editor: false,
   ...over
 })
@@ -43,13 +53,8 @@ const loadGate = async () => {
 
 const hasActiveClass = () => document.documentElement.classList.contains('has-smooth-scroll')
 const hasInactiveClass = () => document.documentElement.classList.contains('no-smooth-scroll')
-
-// happy-dom's Window type doesn't declare this environment-only API.
-type WindowWithHappyDOM = typeof window & {
-  happyDOM: {
-    settings: { disableJavaScriptFileLoading: boolean; handleDisabledFileLoadingAsSuccess: boolean }
-  }
-}
+const injectedLink = () => document.getElementById(GATE_CSS_ID) as HTMLLinkElement | null
+const injectedScript = () => document.getElementById(GATE_JS_ID) as HTMLScriptElement | null
 
 beforeEach(() => {
   document.documentElement.className = ''
@@ -57,13 +62,6 @@ beforeEach(() => {
   delete window.artsSmoothScrolling
   delete window.artsSmoothScrollingOptions
   delete window.artsSmoothScrollingBoot
-  // happy-dom attempts a real fetch for any injected <script src>, which
-  // fails in this sandboxed environment and fires 'error' on every test —
-  // not just the one that means to exercise the onerror path. Make script
-  // "loading" a synthetic no-op success instead.
-  const settings = (window as WindowWithHappyDOM).happyDOM.settings
-  settings.disableJavaScriptFileLoading = true
-  settings.handleDisabledFileLoadingAsSuccess = true
 })
 
 afterEach(() => {
@@ -82,7 +80,7 @@ describe('idempotency', () => {
 
     expect(window.artsSmoothScrolling).toBe(sentinel)
     expect(document.documentElement.className).toBe('')
-    expect(document.getElementById(GATE_JS_ID)).toBeNull()
+    expect(injectedLink()).toBeNull()
   })
 })
 
@@ -121,7 +119,7 @@ describe('fail-safe: missing options or boot', () => {
     expect(hasInactiveClass()).toBe(true)
     expect(hasActiveClass()).toBe(false)
     expect(window.artsSmoothScrolling).toBeDefined()
-    expect(document.getElementById(GATE_JS_ID)).toBeNull()
+    expect(injectedLink()).toBeNull()
   })
 
   it('predicts inactive without throwing when boot is missing', async () => {
@@ -131,7 +129,7 @@ describe('fail-safe: missing options or boot', () => {
 
     expect(hasInactiveClass()).toBe(true)
     expect(hasActiveClass()).toBe(false)
-    expect(document.getElementById(GATE_JS_ID)).toBeNull()
+    expect(injectedLink()).toBeNull()
   })
 
   it('predicts inactive without throwing when both are missing', async () => {
@@ -176,35 +174,37 @@ describe('class prediction', () => {
 })
 
 describe('injection', () => {
-  it('injects immediately when boot.editor is true, even if the query does not match', async () => {
+  it('injects the stylesheet immediately when boot.editor is true, even if the query does not match', async () => {
     fakeMedia(false)
     window.artsSmoothScrollingOptions = options({ matchMedia: '(hover: hover)' })
     window.artsSmoothScrollingBoot = boot({ editor: true })
 
     await loadGate()
 
-    const script = document.getElementById(GATE_JS_ID) as HTMLScriptElement | null
-    expect(script).not.toBeNull()
-    expect(script?.src).toBe('https://example.test/smooth-scrolling-for-elementor.js')
+    const link = injectedLink()
+    expect(link?.rel).toBe('stylesheet')
+    expect(link?.href).toBe('https://example.test/smooth-scrolling-for-elementor.css')
+    expect(injectedScript()).toBeNull()
   })
 
-  it('injects immediately when matchMedia is empty', async () => {
+  it('injects the stylesheet immediately when matchMedia is empty', async () => {
     window.artsSmoothScrollingOptions = options({ matchMedia: '' })
     window.artsSmoothScrollingBoot = boot()
 
     await loadGate()
 
-    expect(document.getElementById(GATE_JS_ID)).not.toBeNull()
+    expect(injectedLink()).not.toBeNull()
+    expect(injectedScript()).toBeNull()
   })
 
-  it('injects immediately when the query already matches', async () => {
+  it('injects the stylesheet immediately when the query already matches', async () => {
     fakeMedia(true)
     window.artsSmoothScrollingOptions = options({ matchMedia: '(hover: hover)' })
     window.artsSmoothScrollingBoot = boot()
 
     await loadGate()
 
-    expect(document.getElementById(GATE_JS_ID)).not.toBeNull()
+    expect(injectedLink()).not.toBeNull()
   })
 
   it('does not inject immediately when the query does not match and it is not editor', async () => {
@@ -214,20 +214,20 @@ describe('injection', () => {
 
     await loadGate()
 
-    expect(document.getElementById(GATE_JS_ID)).toBeNull()
+    expect(injectedLink()).toBeNull()
   })
 
-  it('injects and predicts active on the first matching change, then disarms the listener', async () => {
+  it('injects the stylesheet and predicts active on the first matching change, then disarms the listener', async () => {
     const media = fakeMedia(false)
     window.artsSmoothScrollingOptions = options({ matchMedia: '(hover: hover)' })
     window.artsSmoothScrollingBoot = boot()
 
     await loadGate()
-    expect(document.getElementById(GATE_JS_ID)).toBeNull()
+    expect(injectedLink()).toBeNull()
 
     media.flip()
 
-    expect(document.getElementById(GATE_JS_ID)).not.toBeNull()
+    expect(injectedLink()).not.toBeNull()
     expect(hasActiveClass()).toBe(true)
 
     // Listener must be disarmed: a further flip (back to no-match) must not
@@ -245,15 +245,29 @@ describe('injection', () => {
 
     media.set(false)
 
-    expect(document.getElementById(GATE_JS_ID)).toBeNull()
+    expect(injectedLink()).toBeNull()
     expect(hasInactiveClass()).toBe(true)
 
     // The listener must still be armed — a later real match still injects.
     media.flip()
-    expect(document.getElementById(GATE_JS_ID)).not.toBeNull()
+    expect(injectedLink()).not.toBeNull()
   })
 
-  it('does not inject a duplicate script when one already exists (secondary guard)', async () => {
+  it('does not inject a duplicate stylesheet when one already exists (secondary guard)', async () => {
+    const existing = document.createElement('link')
+    existing.id = GATE_CSS_ID
+    document.head.appendChild(existing)
+
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+
+    expect(document.querySelectorAll(`#${GATE_CSS_ID}`).length).toBe(1)
+    expect(document.getElementById(GATE_CSS_ID)).toBe(existing)
+  })
+
+  it('does not inject a duplicate stylesheet when the script already exists (secondary guard)', async () => {
     const existing = document.createElement('script')
     existing.id = GATE_JS_ID
     document.head.appendChild(existing)
@@ -263,19 +277,59 @@ describe('injection', () => {
 
     await loadGate()
 
-    expect(document.querySelectorAll(`#${GATE_JS_ID}`).length).toBe(1)
-    expect(document.getElementById(GATE_JS_ID)).toBe(existing)
+    expect(injectedLink()).toBeNull()
+  })
+})
+
+describe('the css → js chain', () => {
+  it('injects the script only after the stylesheet onload fires, with the right src/id', async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+    expect(injectedScript()).toBeNull()
+
+    injectedLink()?.onload?.(new Event('load'))
+
+    const script = injectedScript()
+    expect(script?.src).toBe('https://example.test/smooth-scrolling-for-elementor.js')
+    expect(script?.id).toBe(GATE_JS_ID)
   })
 
-  it('predicts inactive when the injected script fails to load', async () => {
+  it('does not inject a second script when onload fires twice', async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+
+    injectedLink()?.onload?.(new Event('load'))
+    injectedLink()?.onload?.(new Event('load'))
+
+    expect(document.querySelectorAll(`#${GATE_JS_ID}`).length).toBe(1)
+  })
+
+  it('predicts inactive and never injects the script when the stylesheet fails to load', async () => {
     window.artsSmoothScrollingOptions = options({ matchMedia: '' })
     window.artsSmoothScrollingBoot = boot()
 
     await loadGate()
     expect(hasActiveClass()).toBe(true)
 
-    const script = document.getElementById(GATE_JS_ID) as HTMLScriptElement
-    script.onerror?.(new Event('error'))
+    injectedLink()?.onerror?.(new Event('error'))
+
+    expect(hasInactiveClass()).toBe(true)
+    expect(hasActiveClass()).toBe(false)
+    expect(injectedScript()).toBeNull()
+  })
+
+  it('predicts inactive when the script fails to load after the stylesheet succeeded', async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+
+    injectedLink()?.onload?.(new Event('load'))
+    injectedScript()?.onerror?.(new Event('error'))
 
     expect(hasInactiveClass()).toBe(true)
     expect(hasActiveClass()).toBe(false)

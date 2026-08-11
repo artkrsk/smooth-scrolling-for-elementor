@@ -12,9 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Every control is JS-bound — there is no appearance surface, so nothing
  * here mirrors a kit-CSS-variable pattern. Options::build() emits the exact
  * shape boot.ts consumes; the compiled engine CSS (Lenis's own stylesheet
- * plus the plugin's few rules) ships as a static file and is inlined into
- * the same wp_head block rather than linked, so one optimizer opt-out
- * covers script and style together.
+ * plus the plugin's few rules) ships as a static file the gate links itself,
+ * chained ahead of the engine script — see print_head().
  */
 class Plugin {
 	private static ?Plugin $instance = null;
@@ -137,15 +136,16 @@ class Plugin {
 	}
 
 	/**
-	 * Prints options + boot descriptor + gate.js inline on wp_head, followed
-	 * by the compiled CSS in a `<style>` tag — the plugin's ONLY front-end
-	 * output. Nothing is enqueued: the gate sets the <html> state classes
-	 * synchronously, then fetches the engine bundle itself once a real
-	 * gesture or the matching media query confirms it's needed (gate.ts).
-	 * No `css` key rides the boot descriptor — the stylesheet is printed
-	 * here directly instead of linked, so it survives inside the same
-	 * noptimize wrapper as the script rather than being a separate request
-	 * an optimizer could still rewrite.
+	 * Prints options + boot descriptor + gate.js inline on wp_head — the
+	 * plugin's ONLY inline output. Nothing is enqueued: the gate sets the
+	 * <html> state classes synchronously, then fetches the compiled
+	 * stylesheet and the engine bundle itself, chained in that order, once a
+	 * real gesture or the matching media query confirms it's needed
+	 * (gate.ts). The `css` key on the boot descriptor carries that
+	 * stylesheet's URL — every selector in it is gated behind a class the
+	 * engine applies at runtime, so it stays a genuine request rather than
+	 * inline dead bytes on every page view, including touch devices where
+	 * the gate downloads nothing at all.
 	 *
 	 * Guarded on Elementor's presence, not just is_enabled(): without
 	 * Elementor there is no Site Settings tab to configure this from, so the
@@ -183,6 +183,7 @@ class Plugin {
 		$editor = $this->is_editor_preview();
 		$boot   = array(
 			'js'     => esc_url_raw( $base_url . '/' . $slug . '.js?ver=' . filemtime( $js ) ),
+			'css'    => esc_url_raw( $base_url . '/' . $slug . '.css?ver=' . filemtime( $css ) ),
 			'editor' => $editor,
 		);
 
@@ -201,15 +202,6 @@ class Plugin {
 				'nowprocket'       => true,
 			)
 		);
-		// The CSS is our own compiled build artifact, read from disk inside the
-		// plugin directory — never user input. Escaping functions would corrupt
-		// it (esc_html turns `>` combinators into entities, which a <style> tag
-		// renders literally), and there is no core equivalent of
-		// wp_print_inline_script_tag() for styles.
-		echo '<style data-no-optimize="1" data-cfasync="false" nowprocket>'
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Compiled stylesheet shipped with the plugin, see above.
-			. file_get_contents( $css )
-			. "</style>\n";
 		echo "<!--/noptimize-->\n";
 	}
 
