@@ -12,4 +12,9 @@ export interface IArtsSmoothScrollingGlobal {
       null otherwise. Shortcut for `get()?.lenis`. */
   readonly lenis: Lenis | null
   version: string
+  /** Ensures the engine bundle is present and resolves with the bundled
+      Lenis class, for building an independent instance (e.g. a horizontal
+      rail) — never enables page-level smooth scrolling. Rejects when the
+      boot descriptor is absent or either asset fails to load. */
+  load(): Promise<typeof Lenis>
 }

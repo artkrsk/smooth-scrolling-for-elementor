@@ -281,6 +281,128 @@ describe('injection', () => {
   })
 })
 
+describe('load()', () => {
+  it('injects on a non-matching media query — the touch-device case', async () => {
+    fakeMedia(false)
+    window.artsSmoothScrollingOptions = options({ matchMedia: '(hover: hover)' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+    expect(injectedLink()).toBeNull()
+
+    // The asset URLs are fake .test hosts (see file docblock) — a real fetch
+    // fails asynchronously after this test's assertions, so swallow it here.
+    window.artsSmoothScrolling?.load().catch(() => {})
+
+    expect(injectedLink()).not.toBeNull()
+  })
+
+  it('memoizes: two calls share one link/script pair and the same promise', async () => {
+    fakeMedia(false)
+    window.artsSmoothScrollingOptions = options({ matchMedia: '(hover: hover)' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+    const first = window.artsSmoothScrolling?.load()
+    first?.catch(() => {})
+    const second = window.artsSmoothScrolling?.load()
+
+    expect(second).toBe(first)
+    expect(document.querySelectorAll(`#${GATE_CSS_ID}`).length).toBe(1)
+  })
+
+  it('resolves with the class once __resolveLoad is called', async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+    const promise = window.artsSmoothScrolling?.load()
+    // biome-ignore lint/suspicious/noExplicitAny: reaching for the gate-only field with a stand-in class
+    const FakeLenis = class {} as any
+    // biome-ignore lint/suspicious/noExplicitAny: reaching for the gate-only field
+    ;(window.artsSmoothScrolling as any).__resolveLoad(FakeLenis)
+
+    await expect(promise).resolves.toBe(FakeLenis)
+  })
+
+  it('resolves immediately, without injecting again, once the class is already known', async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+    // biome-ignore lint/suspicious/noExplicitAny: reaching for the gate-only field with a stand-in class
+    const FakeLenis = class {} as any
+    // biome-ignore lint/suspicious/noExplicitAny: reaching for the gate-only field
+    ;(window.artsSmoothScrolling as any).__resolveLoad(FakeLenis)
+
+    await expect(window.artsSmoothScrolling?.load()).resolves.toBe(FakeLenis)
+    expect(document.querySelectorAll(`#${GATE_CSS_ID}`).length).toBe(1)
+  })
+
+  it('rejects when the boot descriptor is missing', async () => {
+    window.artsSmoothScrollingOptions = options()
+
+    await loadGate()
+
+    await expect(window.artsSmoothScrolling?.load()).rejects.toThrow()
+  })
+
+  it('rejects on link.onerror and still predicts inactive', async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+    const promise = window.artsSmoothScrolling?.load()
+
+    injectedLink()?.onerror?.(new Event('error'))
+
+    await expect(promise).rejects.toThrow()
+    expect(hasInactiveClass()).toBe(true)
+  })
+
+  it('rejects on script.onerror and still predicts inactive', async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+    const promise = window.artsSmoothScrolling?.load()
+
+    injectedLink()?.onload?.(new Event('load'))
+    injectedScript()?.onerror?.(new Event('error'))
+
+    await expect(promise).rejects.toThrow()
+    expect(hasInactiveClass()).toBe(true)
+  })
+
+  it('leaves <html> classes untouched on the success path', async () => {
+    fakeMedia(false)
+    window.artsSmoothScrollingOptions = options({ matchMedia: '(hover: hover)' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+    expect(hasInactiveClass()).toBe(true)
+
+    window.artsSmoothScrolling?.load().catch(() => {})
+
+    expect(hasInactiveClass()).toBe(true)
+    expect(hasActiveClass()).toBe(false)
+  })
+
+  it('does not inject a second time when the armed matchMedia listener fires after load() already injected', async () => {
+    const media = fakeMedia(false)
+    window.artsSmoothScrollingOptions = options({ matchMedia: '(hover: hover)' })
+    window.artsSmoothScrollingBoot = boot()
+
+    await loadGate()
+    window.artsSmoothScrolling?.load().catch(() => {})
+    expect(document.querySelectorAll(`#${GATE_CSS_ID}`).length).toBe(1)
+
+    media.flip()
+
+    expect(document.querySelectorAll(`#${GATE_CSS_ID}`).length).toBe(1)
+  })
+})
+
 describe('the css → js chain', () => {
   it('injects the script only after the stylesheet onload fires, with the right src/id', async () => {
     window.artsSmoothScrollingOptions = options({ matchMedia: '' })

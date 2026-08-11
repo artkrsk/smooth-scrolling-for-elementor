@@ -9,6 +9,7 @@
  * import, inline print stripped) this file creates the same contract itself.
  */
 
+import Lenis from 'lenis'
 import { createSmoothScrolling } from './core/controller'
 import type { IGateGlobal, ISmoothScrolling } from './interfaces'
 import { mapKitSettings } from './kitSettings'
@@ -43,8 +44,13 @@ if (!existingGlobal || '__resolveReady' in existingGlobal) {
     get lenis() {
       return controller?.lenis ?? null
     },
-    version: __ARTS_SMOOTH_SCROLLING_VERSION__
+    version: __ARTS_SMOOTH_SCROLLING_VERSION__,
+    load: () => Promise.resolve(Lenis)
   }
+
+  // Settles any load() promise the gate handed out (and hands the class to a
+  // consumer still holding the gate object after the global above replaces it).
+  gate?.__resolveLoad?.(Lenis)
 
   // Elementor editor live preview: the PHP-printed bridge in the editor window
   // forwards kit-setting changes into this (preview) window. Inert elsewhere —

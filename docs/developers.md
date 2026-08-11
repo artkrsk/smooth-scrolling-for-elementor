@@ -14,6 +14,7 @@ interface IArtsSmoothScrollingGlobal {
   /** Shortcut for `get()?.lenis`. */
   readonly lenis: Lenis | null
   version: string
+  load(): Promise<typeof Lenis>
 }
 ```
 
@@ -27,7 +28,20 @@ window.artsSmoothScrolling?.get()?.lenis?.scrollTo('#pricing')
 const controller = await window.artsSmoothScrolling?.ready
 ```
 
-`ready` only resolves once the engine actually starts, and the two ways it doesn't are different shapes: on a touch device with the default disable-touch setting, the gate still runs and installs the global, but `ready` stays pending forever because the engine bundle never loads. On a request the `arts_smooth_scrolling/enabled` filter turns off, the gate itself never prints — `window.artsSmoothScrolling` doesn't exist at all, so an unguarded `.ready` access throws. Always reach it through optional chaining, as above. `get()` and the `lenis` getter are the synchronous escape hatch for code that has to handle "not running" as a normal case rather than waiting on a promise that may never settle.
+`ready` resolves once the engine bundle has booted and the controller exists — not once smoothing has actually started. The controller may be idle (touch, or a `matchMedia` query that doesn't match), so `ready` resolving only tells you the controller is there; `.lenis` is what tells you smoothing is actually running. And on a touch device with the default disable-touch setting, the gate still runs and installs the global, but `ready` stays pending forever because the engine bundle never loads at all. On a request the `arts_smooth_scrolling/enabled` filter turns off, the gate itself never prints — `window.artsSmoothScrolling` doesn't exist at all, so an unguarded `.ready` access throws. Always reach it through optional chaining, as above. `get()` and the `lenis` getter are the synchronous escape hatch for code that has to handle "not running" as a normal case rather than waiting on a promise that may never settle.
+
+## Using the bundled Lenis for your own container
+
+`load()` ensures the engine bundle is present and resolves with the bundled Lenis class, for a container that wants its own instance — a horizontal rail, an infinite list, a scrollable panel:
+
+```js
+const Lenis = await window.artsSmoothScrolling?.load()
+const rail = new Lenis({ wrapper: el, content: inner, orientation: 'horizontal', autoRaf: true })
+```
+
+Guard the call with `?.`, same as `ready` — the global doesn't exist at all when the plugin is disabled via the `arts_smooth_scrolling/enabled` filter. `load()` never enables page-level smooth scrolling: the page controller has its own `matchMedia` gate and stays exactly as it is regardless of when or how often you call `load()`, so it's safe to call from anywhere, including a touch device where the page controller stays idle. It's memoized — concurrent callers share one promise and one injection — and rejects if the boot descriptor is absent or either asset fails to load.
+
+You drive the instance you get back yourself, with `autoRaf: true` or your own ticker calling `lenis.raf(time)`. If `window.gsap` is present and the PHP-controlled `prefersGSAPRaf` stays at its default `true`, the page engine has already called `gsap.ticker.lagSmoothing(0)` globally (see GSAP integration below) — useful to know if you're driving your container off GSAP's ticker too.
 
 ## Server-side filters
 

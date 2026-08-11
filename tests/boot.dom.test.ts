@@ -37,6 +37,7 @@ const loadBoot = async () => {
 
 beforeEach(() => {
   document.documentElement.className = ''
+  document.head.innerHTML = ''
   delete window.artsSmoothScrolling
   delete window.artsSmoothScrollingOptions
   delete window.artsSmoothScrollingBoot
@@ -77,7 +78,9 @@ describe('claiming the gate resolver', () => {
         return null
       },
       version: '0.0.0-test',
-      __resolveReady: resolve
+      load: () => Promise.reject(new Error('not implemented')),
+      __resolveReady: resolve,
+      __resolveLoad: () => {}
     }
     window.artsSmoothScrolling = gate
     window.artsSmoothScrollingOptions = options()
@@ -139,6 +142,36 @@ describe('idempotency guard (final global already present)', () => {
 
     expect(window.artsSmoothScrolling).toBe(firstGlobal)
     expect(window.artsSmoothScrolling?.get()).toBe(firstController)
+  })
+})
+
+describe('load()', () => {
+  it("resolves with the engine's Lenis class from the final global", async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
+
+    await loadBoot()
+
+    const LenisClass = await window.artsSmoothScrolling?.load()
+    expect(window.artsSmoothScrolling?.lenis).toBeInstanceOf(LenisClass)
+  })
+
+  it('settles a load() promise obtained from the gate before boot ran', async () => {
+    window.artsSmoothScrollingOptions = options({ matchMedia: '' })
+    window.artsSmoothScrollingBoot = {
+      js: 'https://example.test/smooth-scrolling-for-elementor.js',
+      css: 'https://example.test/smooth-scrolling-for-elementor.css',
+      editor: false
+    }
+
+    vi.resetModules()
+    await import('@ts/gate')
+    const gate = window.artsSmoothScrolling as IGateGlobal
+    const loadPromise = gate.load()
+
+    await loadBoot()
+
+    const LenisClass = await loadPromise
+    expect(window.artsSmoothScrolling?.lenis).toBeInstanceOf(LenisClass)
   })
 })
 

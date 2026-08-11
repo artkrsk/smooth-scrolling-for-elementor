@@ -139,9 +139,9 @@ class Plugin {
 	 * Prints options + boot descriptor + gate.js inline on wp_head — the
 	 * plugin's ONLY inline output. Nothing is enqueued: the gate sets the
 	 * <html> state classes synchronously, then fetches the compiled
-	 * stylesheet and the engine bundle itself, chained in that order, once a
-	 * real gesture or the matching media query confirms it's needed
-	 * (gate.ts). The `css` key on the boot descriptor carries that
+	 * stylesheet and the engine bundle itself, chained in that order, once
+	 * the matching media query confirms it's needed (gate.ts). The `css`
+	 * key on the boot descriptor carries that
 	 * stylesheet's URL — every selector in it is gated behind a class the
 	 * engine applies at runtime, so it stays a genuine request rather than
 	 * inline dead bytes on every page view, including touch devices where

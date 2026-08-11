@@ -9,6 +9,7 @@
  * init (domState).
  */
 
+import type Lenis from 'lenis'
 import type { IGateGlobal, ISmoothScrolling } from './interfaces'
 
 // Idempotence: a second print (double-wp_head themes) or a replayed inline
@@ -18,6 +19,20 @@ if (!window.artsSmoothScrolling) {
   const ready = new Promise<ISmoothScrolling>((resolve) => {
     resolveReady = resolve
   })
+
+  // load() state: lenisClass is set once boot hands the class over, so a
+  // consumer holding this gate object after boot replaces the global still
+  // resolves instantly instead of re-injecting. loadPromise memoizes
+  // concurrent callers onto one injection.
+  let lenisClass: typeof Lenis | undefined
+  let loadPromise: Promise<typeof Lenis> | undefined
+  let settleLoad: (lenis: typeof Lenis) => void
+  let failLoad: (error: Error) => void
+  // Reassigned below once options/boot are known; stays the rejection when
+  // the descriptor is absent (stripped inline print, plugin disabled).
+  let loadImpl: () => Promise<typeof Lenis> = () =>
+    Promise.reject(new Error('arts-smooth-scrolling: assets unavailable'))
+
   const gate: IGateGlobal = {
     ready,
     get: () => null,
@@ -25,7 +40,12 @@ if (!window.artsSmoothScrolling) {
       return null
     },
     version: __ARTS_SMOOTH_SCROLLING_VERSION__,
-    __resolveReady: (controller) => resolveReady(controller)
+    load: () => loadImpl(),
+    __resolveReady: (controller) => resolveReady(controller),
+    __resolveLoad: (lenis) => {
+      lenisClass = lenis
+      settleLoad?.(lenis)
+    }
   }
   window.artsSmoothScrolling = gate
 
@@ -70,11 +90,31 @@ if (!window.artsSmoothScrolling) {
         const script = document.createElement('script')
         script.id = 'smooth-scrolling-for-elementor-js'
         script.src = boot.js
-        script.onerror = () => predict(false)
+        script.onerror = () => {
+          predict(false)
+          failLoad?.(new Error('arts-smooth-scrolling: failed to load engine script'))
+        }
         document.head.appendChild(script)
       }
-      link.onerror = () => predict(false)
+      link.onerror = () => {
+        predict(false)
+        failLoad?.(new Error('arts-smooth-scrolling: failed to load stylesheet'))
+      }
       document.head.appendChild(link)
+    }
+
+    loadImpl = () => {
+      if (lenisClass) {
+        return Promise.resolve(lenisClass)
+      }
+      if (!loadPromise) {
+        loadPromise = new Promise((resolve, reject) => {
+          settleLoad = resolve
+          failLoad = reject
+        })
+        inject()
+      }
+      return loadPromise
     }
 
     if (boot.editor || matchesNow) {

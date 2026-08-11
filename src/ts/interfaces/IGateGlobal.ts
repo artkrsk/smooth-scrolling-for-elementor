@@ -1,3 +1,4 @@
+import type Lenis from 'lenis'
 import type { IArtsSmoothScrollingGlobal } from './IArtsSmoothScrollingGlobal'
 import type { ISmoothScrolling } from './ISmoothScrolling'
 
@@ -8,4 +9,8 @@ import type { ISmoothScrolling } from './ISmoothScrolling'
 export interface IGateGlobal extends IArtsSmoothScrollingGlobal {
   /** Claimed (and thereby retired) by boot.ts. */
   __resolveReady: (controller: ISmoothScrolling) => void
+  /** Called by boot.ts once the engine class is available, so a load()
+      promise handed out by this gate settles — including for a consumer
+      still holding this object after boot replaces the global. */
+  __resolveLoad: (lenis: typeof Lenis) => void
 }
