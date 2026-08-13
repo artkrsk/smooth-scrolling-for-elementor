@@ -10,52 +10,20 @@ permissions:
   pull-requests: read
 
 jobs:
-  # Extract this version's changelog entry from readme.txt
-  prepare-changelog:
-    runs-on: self-hosted
-    outputs:
-      changelog: ${{ steps.extract.outputs.changelog }}
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        if: runner.environment == 'github-hosted'
-        with:
-          node-version: '24'
-
-      - name: Extract changelog from readme.txt
-        id: extract
-        run: |
-          CHANGELOG=$(node build/extract-changelog.js latest)
-          {
-            echo "changelog<<EOF"
-            echo "$CHANGELOG"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-
-  # Build, validate versions, create the GitHub release
   release:
-    needs: prepare-changelog
-    uses: artkrsk/wordpress-plugin-release-action/.github/workflows/release.yml@main
+    uses: artkrsk/wordpress-plugin-workflows/.github/workflows/release.yml@main
     with:
-      # Node 24: last LTS line that still bundles corepack (the action uses it for pnpm)
       node_version: '24'
       php_version: '8.4'
-      # The action installs Node deps only; composer install must be explicit —
-      # the build copies vendor/autoload.php into the staged plugin and its
-      # release assertions fail fast without it.
       build_command: 'composer install --prefer-dist --no-progress && pnpm build'
-
-      # Changelog from readme.txt
-      custom_changelog: ${{ needs.prepare-changelog.outputs.changelog }}
-
-      # Version consistency: all three are stamped from composer.json "version",
-      # and the tag must match them.
+      plugin_slug: 'smooth-scrolling-for-elementor'
+      main_plugin_file: 'src/wordpress-plugin/smooth-scrolling-for-elementor.php'
+      use_arts_changelog: true
+      assets_directory: '.wordpress-org'
       version_files: '["plugin_header", "readme.txt", "package.json"]'
-
-      # Not on WordPress.org yet, so there is no SVN repo to check out — leaving
-      # this on would fail the release outright. Flip to true and add the
-      # SVN_USERNAME / SVN_PASSWORD repo secrets once the plugin is approved.
-      # No assets_directory yet either (no .wordpress-org icons/screenshots
-      # committed) — add one once WordPress.org listing assets exist.
+      # In the wp.org review queue — flip to true after approval and
+      # rotate-svn-secrets.sh --add smooth-scrolling-for-elementor.
       deploy_to_wordpress: false
+    secrets:
+      SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+      SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}

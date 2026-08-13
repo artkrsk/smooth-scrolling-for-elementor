@@ -15,9 +15,9 @@ Lenis-powered smooth scrolling for Elementor, shipped two ways from one codebase
 
 - `pnpm test` — full Vitest suite. Single file: `pnpm test tests/core/easings.test.ts`. Single test: append `-t 'name'`.
 - `pnpm test:coverage` — Istanbul coverage (the format fallow's `health --coverage` requires; don't switch the provider to v8).
-- `pnpm typecheck` — `tsc --noEmit`
-- `pnpm lint` / `pnpm format` — Biome
-- `pnpm phpstan` — PHPStan level max over `src/php` (WordPress + Elementor stubs; needs `composer install` first). `treatPhpDocTypesAsCertain: false` is deliberate — Elementor types `Plugin::$instance` only via docblock, and the null-guards must not be flagged as dead code.
+- `pnpm exec tsc --noEmit` — `tsc --noEmit`
+- `pnpm exec biome check .` / `biome format --write .` — Biome
+- `vendor/bin/phpstan analyse --memory-limit=1G` — PHPStan level max over `src/php` (WordPress + Elementor stubs; needs `composer install` first). `treatPhpDocTypesAsCertain: false` is deliberate — Elementor types `Plugin::$instance` only via docblock, and the null-guards must not be flagged as dead code.
 - `pnpm knip` — dead-export check
 - `pnpm dev:plugin` — watch mode; compiles into `src/php/libraries/` and, only if `DEV_TARGET` is set in the gitignored `.env`, mirrors the plugin into that Local site directory.
 - `pnpm build` — release build: stamps versions, stages `dist/smooth-scrolling-for-elementor/`, zips it.
@@ -43,7 +43,7 @@ Invariants:
 
 ## Build system
 
-Custom esbuild/sass pipeline in `build/` (`node build/index.js dev|build`), configured by `project.config.js`.
+Custom esbuild/sass pipeline in `build/` (`arts-wp dev|build`), configured by `project.config.js`.
 
 - Compiled assets land in `src/php/libraries/smooth-scrolling-for-elementor/` and are **gitignored** — the composer-symlink consumer (velum-core) sees whatever the local dev/build run produced; the release build stages fresh assets into `dist/`. Never hand-edit `gate.js`, `smooth-scrolling-for-elementor.js/.css` there; edit `src/ts` / `src/styles` and rebuild.
 - `composer.json` `"version"` is the single version source. The build stamps it into the plugin header, `readme.txt`, `package.json`, the `ARTS_SMOOTH_SCROLLING_PLUGIN_VERSION` constant, and the `__ARTS_SMOOTH_SCROLLING_VERSION__` esbuild define. To release: bump composer.json, build, push a `v*` tag — the release workflow validates the tag against the stamped files and takes the changelog entry from `src/wordpress-plugin/readme.txt`.

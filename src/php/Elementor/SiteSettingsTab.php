@@ -56,46 +56,46 @@ class SiteSettingsTab extends Tab_Base {
 		$this->add_control(
 			'arts_smooth_scrolling_disable_touch',
 			array(
-				'label'               => esc_html__( 'Disable on Touch Devices', 'smooth-scrolling-for-elementor' ),
-				'type'                => Controls_Manager::SWITCHER,
-				'return_value'        => '(hover: hover) and (pointer: fine)',
-				'default'             => '(hover: hover) and (pointer: fine)',
-				'frontend_available'  => true,
+				'label'              => esc_html__( 'Disable on Touch Devices', 'smooth-scrolling-for-elementor' ),
+				'type'               => Controls_Manager::SWITCHER,
+				'return_value'       => '(hover: hover) and (pointer: fine)',
+				'default'            => '(hover: hover) and (pointer: fine)',
+				'frontend_available' => true,
 			)
 		);
 
 		$this->add_control(
 			'arts_smooth_scrolling_duration',
 			array(
-				'label'               => esc_html__( 'Duration', 'smooth-scrolling-for-elementor' ),
-				'type'                => Controls_Manager::SLIDER,
-				'size_units'          => array( 'seconds' ),
-				'range'               => array(
+				'label'              => esc_html__( 'Duration', 'smooth-scrolling-for-elementor' ),
+				'type'               => Controls_Manager::SLIDER,
+				'size_units'         => array( 'seconds' ),
+				'range'              => array(
 					'seconds' => array(
 						'min'  => 0.1,
 						'max'  => 4.0,
 						'step' => 0.1,
 					),
 				),
-				'default'             => array(
+				'default'            => array(
 					'unit' => 'seconds',
 					'size' => 1.2,
 				),
-				'frontend_available'  => true,
+				'frontend_available' => true,
 			)
 		);
 
 		$this->add_control(
 			'arts_smooth_scrolling_easing',
 			array(
-				'label'               => esc_html__( 'Easing', 'smooth-scrolling-for-elementor' ),
-				'type'                => Controls_Manager::SELECT,
-				'options'             => array(
+				'label'              => esc_html__( 'Easing', 'smooth-scrolling-for-elementor' ),
+				'type'               => Controls_Manager::SELECT,
+				'options'            => array(
 					'expo.out' => esc_html__( 'Expo Out', 'smooth-scrolling-for-elementor' ),
 					'linear'   => esc_html__( 'Linear', 'smooth-scrolling-for-elementor' ),
 				),
-				'default'             => 'expo.out',
-				'frontend_available'  => true,
+				'default'            => 'expo.out',
+				'frontend_available' => true,
 			)
 		);
 
