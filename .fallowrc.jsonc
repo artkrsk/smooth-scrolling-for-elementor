@@ -1,0 +1,39 @@
+{
+  // This file is JSONC: fallow reads these comments; generic JSON tools may not.
+  "$schema": "./node_modules/fallow/schema.json",
+  // The engine bundle, the library surface package.json#types points at, and
+  // the stylesheet — the last named directly because nothing imports it as a
+  // module: its only reference is project.config.js's sass entry, which fallow
+  // reads as data, not as an import.
+  "entry": [
+    "src/ts/boot.ts",
+    "src/ts/gate.ts",
+    "src/ts/index.ts",
+    "tests/ts/setup.ts",
+    "project.config.js",
+    "src/styles/index.scss"
+  ],
+  "ignorePatterns": ["dist/**", "vendor/**", "vendor-prefixed/**", "src/php/**", "docs/**"],
+  // Pure module-scope helpers are exported as the unit-test surface while also
+  // being used inside their own module — core/easings.ts exports the three
+  // easing functions its own EASINGS map consumes. Without this they read as
+  // unnecessary exports.
+  "ignoreExportsUsedInFile": true,
+  "duplicates": {
+    // Hide pair-only clones; focus on widespread copy-paste
+    // worth refactoring. Lower to 2 to report every duplicate pair.
+    "minOccurrences": 3
+  },
+  "health": {
+    // Test files add nothing here: their "large functions" are describe()
+    // bodies and CRAP over a test file is meaningless. Suffix-matched anywhere
+    // so relocating the tests doesn't strand the pattern.
+    "ignore": ["**/*.test.ts"]
+  },
+  "rules": {
+    // Structurally inapplicable here: the package is private and never installed
+    // with --prod, and it declares no runtime dependencies at all (the engine
+    // ships zero).
+    "dev-dependencies-in-production": "off"
+  }
+}

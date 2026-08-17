@@ -1,0 +1,10 @@
+@use '../../node_modules/lenis/dist/lenis.css';
+
+// Cancels Elementor's own `html { scroll-behavior: smooth }`, which its
+// always-loaded frontend.css ships under exactly this media query — native
+// smooth scrolling fights Lenis's anchor handling. The query is mirrored
+// verbatim so the override has the same reach as the rule it undoes, and it
+// only applies while the engine is actually running (has-smooth-anchors).
+@media (prefers-reduced-motion: no-preference) {
+  html.has-smooth-anchors { scroll-behavior: initial; }
+}
