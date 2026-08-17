@@ -1,0 +1,125 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Smooth Scrolling for Elementor">
+  <title>Smooth Scrolling for Elementor</title>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="256" x2="256" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#333333"/>
+      <stop offset="1" stop-color="#111111"/>
+    </linearGradient>
+    <clipPath id="win"><rect x="26" y="42" width="204" height="172" rx="26"/></clipPath>
+    <style>
+      .track { animation: glide 7.5s infinite; will-change: transform; }
+      .thumb { animation: thumb 7.5s infinite; will-change: transform; }
+      .v { will-change: transform, opacity; }
+      .v0 { animation: v0 7.5s infinite; }
+      .v1 { animation: v1 7.5s infinite; }
+      .v2 { animation: v2 7.5s infinite; }
+      .v3 { animation: v3 7.5s infinite; }
+      .v4 { animation: v4 7.5s infinite; }
+      .v5 { animation: v5 7.5s infinite; }
+      .v6 { animation: v6 7.5s infinite; }
+      .v7 { animation: v7 7.5s infinite; }
+      .v8 { animation: v8 7.5s infinite; }
+      .v9 { animation: v9 7.5s infinite; }
+      @keyframes glide {
+        0%, 16%   { transform: translateY(0); animation-timing-function: cubic-bezier(.16,1,.3,1); }
+        36%, 52%  { transform: translateY(-344px); animation-timing-function: cubic-bezier(.16,1,.3,1); }
+        66%, 80%  { transform: translateY(-516px); animation-timing-function: cubic-bezier(.7,0,.15,1); }
+        98%, 100% { transform: translateY(0); }
+      }
+      @keyframes thumb {
+        0%, 16%   { transform: translateY(0); animation-timing-function: cubic-bezier(.16,1,.3,1); }
+        36%, 52%  { transform: translateY(80px); animation-timing-function: cubic-bezier(.16,1,.3,1); }
+        66%, 80%  { transform: translateY(120px); animation-timing-function: cubic-bezier(.7,0,.15,1); }
+        98%, 100% { transform: translateY(0); }
+      }
+      @keyframes v0 {
+        0%, 16% { opacity:1; transform:translateY(0); }
+        20.5% { opacity:0; transform:translateY(-6px); }
+        21%, 92% { opacity:0; transform:translateY(10px); animation-timing-function:cubic-bezier(.2,.75,.25,1); }
+        97%, 100% { opacity:1; transform:translateY(0); }
+      }
+      @keyframes v1 {
+        0%, 16% { opacity:1; transform:translateY(0); }
+        20.5% { opacity:0; transform:translateY(-6px); }
+        21%, 93.3% { opacity:0; transform:translateY(10px); animation-timing-function:cubic-bezier(.2,.75,.25,1); }
+        98.3%, 100% { opacity:1; transform:translateY(0); }
+      }
+      @keyframes v2 {
+        0%, 16% { opacity:1; transform:translateY(0); }
+        20.5% { opacity:0; transform:translateY(-6px); }
+        21%, 94.6% { opacity:0; transform:translateY(10px); animation-timing-function:cubic-bezier(.2,.75,.25,1); }
+        99.6%, 100% { opacity:1; transform:translateY(0); }
+      }
+      @keyframes v3 {
+        0%, 27% { opacity:0; transform:translateY(10px); animation-timing-function:cubic-bezier(.2,.75,.25,1); }
+        34%, 100% { opacity:1; transform:translateY(0); }
+      }
+      @keyframes v4 {
+        0%, 29.5% { opacity:0; transform:translateY(10px); animation-timing-function:cubic-bezier(.2,.75,.25,1); }
+        36.5%, 100% { opacity:1; transform:translateY(0); }
+      }
+      @keyframes v5 {
+        0%, 32% { opacity:0; transform:translateY(10px); animation-timing-function:cubic-bezier(.2,.75,.25,1); }
+        39%, 100% { opacity:1; transform:translateY(0); }
+      }
+      @keyframes v6 {
+        0%, 56% { opacity:0; transform:translateY(10px); animation-timing-function:cubic-bezier(.2,.75,.25,1); }
+        63%, 100% { opacity:1; transform:translateY(0); }
+      }
+      @keyframes v7 {
+        0%, 58% { opacity:0; transform:translateY(10px); animation-timing-function:cubic-bezier(.2,.75,.25,1); }
+        65%, 100% { opacity:1; transform:translateY(0); }
+      }
+      @keyframes v8 {
+        0%, 60% { opacity:0; transform:translateY(10px); animation-timing-function:cubic-bezier(.2,.75,.25,1); }
+        67%, 100% { opacity:1; transform:translateY(0); }
+      }
+      @keyframes v9 {
+        0%, 62% { opacity:0; transform:translateY(10px); animation-timing-function:cubic-bezier(.2,.75,.25,1); }
+        69%, 100% { opacity:1; transform:translateY(0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .track, .thumb { animation: none; }
+        .v { animation: none !important; opacity: 1 !important; transform: none !important; }
+      }
+    </style>
+  </defs>
+
+  <rect width="256" height="256" rx="54" fill="url(#bg)"/>
+  <rect x="0.75" y="0.75" width="254.5" height="254.5" rx="53.25" fill="none" stroke="#FFFFFF" stroke-opacity="0.06"/>
+
+  <g clip-path="url(#win)">
+    <g class="track">
+      <rect x="26" y="42" width="204" height="172" fill="#0D9488"/>
+      <g fill="#FFFFFF" fill-opacity="0.9">
+        <rect class="v v0" x="57" y="94" width="62" height="48" rx="10"/>
+        <rect class="v v1" x="137" y="94" width="62" height="48" rx="10"/>
+        <rect class="v v2" x="84" y="156" width="88" height="8" rx="4"/>
+      </g>
+      <rect x="26" y="214" width="204" height="172" fill="#4F46E5"/>
+      <g fill="#FFFFFF" fill-opacity="0.9">
+        <rect x="50" y="272" width="64" height="56" rx="10"/>
+        <rect x="126" y="276" width="66" height="9" rx="4"/>
+        <rect x="126" y="296" width="58" height="9" rx="4"/>
+        <rect x="126" y="316" width="50" height="9" rx="4"/>
+      </g>
+      <rect x="26" y="386" width="204" height="172" fill="#7C3AED"/>
+      <g fill="#FFFFFF" fill-opacity="0.9">
+        <rect class="v v3" x="72" y="436" width="112" height="14" rx="7"/>
+        <rect class="v v4" x="86" y="462" width="84" height="9" rx="4"/>
+        <rect class="v v5" x="102" y="488" width="52" height="16" rx="8"/>
+      </g>
+      <rect x="26" y="558" width="204" height="172" fill="#E11D48"/>
+      <g fill="#FFFFFF" fill-opacity="0.9">
+        <rect class="v v6" x="46" y="606" width="46" height="52" rx="11"/>
+        <rect class="v v7" x="105" y="606" width="46" height="52" rx="11"/>
+        <rect class="v v8" x="164" y="606" width="46" height="52" rx="11"/>
+        <rect class="v v9" x="79" y="674" width="98" height="9" rx="4"/>
+      </g>
+    </g>
+    <rect x="220" y="48" width="4" height="160" rx="2" fill="#FFFFFF" fill-opacity="0.15"/>
+    <rect class="thumb" x="220" y="48" width="4" height="40" rx="2" fill="#FFFFFF" fill-opacity="0.55"/>
+  </g>
+
+  <rect x="26" y="42" width="204" height="172" rx="26" fill="none" stroke="#FFFFFF" stroke-opacity="0.12"/>
+</svg>

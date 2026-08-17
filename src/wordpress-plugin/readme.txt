@@ -70,6 +70,11 @@ Deactivate the plugin, or for conditional control use the `arts_smooth_scrolling
 
 Not certified yet with 1.0.0. The engine is designed to persist across such transitions rather than re-initialize on every page swap, but this hasn't been tested against specific transitions plugins. If you run into issues, please report them.
 
+== Screenshots ==
+
+1. The Smooth Scrolling tab, tucked under Elementor's Site Settings.
+2. Duration, easing, and the disable-on-touch switch.
+
 == Changelog ==
 
 = 1.0.0 =
