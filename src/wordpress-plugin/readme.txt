@@ -77,5 +77,8 @@ Not certified yet with 1.0.0. The engine is designed to persist across such tran
 
 == Changelog ==
 
+= 1.0.1 =
+* improved: confirmed compatibility with WordPress 7.1.
+
 = 1.0.0 =
 Initial release.
