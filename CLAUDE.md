@@ -11,6 +11,8 @@ Lenis-powered smooth scrolling for Elementor, shipped two ways from one codebase
 
 `ARTS_SMOOTH_SCROLLING_PLUGIN_FILE` is defined only by the standalone bootstrap (`src/wordpress-plugin/smooth-scrolling-for-elementor.php`); PHP code checks it to detect which mode it is running in.
 
+"v1" in code comments and test docblocks means the predecessor this rewrite replaced — `Framework/packages/ArtsSmoothScrolling` in the Arts framework monorepo, not an earlier release of this plugin. Comments citing v1 (easing math ported from its `Easing.ts`, no async lifecycle queue, no `preventDefault` on top anchors, the shallow `Object.assign` its live-preview path used) are recording deliberate parity or a deliberate departure.
+
 ## Commands
 
 - `pnpm test` — full Vitest suite. Single file: `pnpm test tests/ts/core/easings.test.ts`. Single test: append `-t 'name'`.
@@ -47,7 +49,7 @@ Custom esbuild/sass pipeline shipped by `@arts/wp-plugin-tooling` (`arts-wp dev|
 
 - Compiled assets land in `src/php/libraries/smooth-scrolling-for-elementor/` and are **gitignored** — the composer-symlink consumer (velum-core) sees whatever the local dev/build run produced; the release build stages fresh assets into `dist/`. Never hand-edit `gate.js`, `smooth-scrolling-for-elementor.js/.css` there; edit `src/ts` / `src/styles` and rebuild.
 - `composer.json` `"version"` is the single version source. The build stamps it into the plugin header, `readme.txt`, `package.json`, the `ARTS_SMOOTH_SCROLLING_PLUGIN_VERSION` constant, and the `__ARTS_SMOOTH_SCROLLING_VERSION__` esbuild define. To release: bump composer.json, build, push a `v*` tag — the release workflow validates the tag against the stamped files and takes the changelog entry from `src/wordpress-plugin/readme.txt`.
-- `project.config.js` edits need a dev-mode restart (Node module cache); `composer.json` is re-read live by the watcher.
+- `project.config.js` edits need a dev-mode restart (Node module cache). `composer.json` is re-read fresh per call, and the watcher that restamps on a version bump only runs when `DEV_TARGET` is set — even then the running esbuild banner and version define keep the old value until dev restarts.
 
 ## Tests
 

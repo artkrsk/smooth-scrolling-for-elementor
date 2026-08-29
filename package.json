@@ -30,5 +30,8 @@
     "stylelint": "^17.14.1",
     "typescript": "^7.0.2",
     "vitest": "4.1.10"
+  },
+  "dependencies": {
+    "@artemsemkin/elementor-types": "^2.0.0"
   }
 }

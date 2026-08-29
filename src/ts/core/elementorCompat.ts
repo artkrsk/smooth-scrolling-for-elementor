@@ -1,4 +1,5 @@
-import type { IElementorFrontend, IJQueryStatic } from '../interfaces'
+import type { ElementorFrontend } from '@artemsemkin/elementor-types'
+import type { IJQueryStatic } from '../interfaces'
 
 /** Guards suppressElementorAnchors() so its detect+unbind path runs once per
     page load — repeated controller run() cycles (media flips, editor
@@ -12,9 +13,9 @@ let hasRun = false
     covers every Elementor new enough to have dropped the module as well as
     the window between `elementorFrontend` existing and `utils.anchors` being
     populated. */
-const unbindAnchors = (elementorFrontend: IElementorFrontend): boolean => {
+const unbindAnchors = (elementorFrontend: ElementorFrontend): boolean => {
   const anchors = elementorFrontend.utils?.anchors
-  const $document = elementorFrontend.elements?.$document
+  const $document = elementorFrontend.elements.$document
   if (!$document || !anchors?.getSettings || !anchors.handleAnchorLinks) {
     return false
   }
@@ -50,7 +51,7 @@ export function suppressElementorAnchors(): void {
   // Runtime-detected, never bundled: read via a local cast so this module
   // type-checks standalone for consumers who compile our source directly.
   const foreignWindow = window as Window & {
-    elementorFrontend?: IElementorFrontend
+    elementorFrontend?: ElementorFrontend
     jQuery?: IJQueryStatic
   }
 

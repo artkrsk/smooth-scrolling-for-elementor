@@ -139,16 +139,16 @@ class Plugin {
 
 	/**
 	 * Prints options + boot descriptor + gate.js inline on wp_head — the only
-	 * markup this plugin echoes, and its only front-end output at all
-	 * (print_editor_bridge() also emits inline JS, but through the enqueue API
-	 * and only in the editor). Nothing is enqueued here: the gate sets the
-	 * <html> state classes synchronously, then fetches the compiled stylesheet
-	 * and the engine bundle itself, chained in that order, once the matching
-	 * media query confirms it's needed (gate.ts). The `css` key on the boot
-	 * descriptor carries that stylesheet's URL — every selector in it is gated
-	 * behind a class the engine applies at runtime, so it stays a genuine
-	 * request rather than inline dead bytes on every page view, including
-	 * touch devices where the gate downloads nothing at all.
+	 * markup this plugin echoes (print_editor_bridge() also emits inline JS,
+	 * but through the enqueue API and only in the editor). Nothing is enqueued
+	 * here: the gate sets the <html> state classes synchronously, then fetches
+	 * the compiled stylesheet and the engine bundle itself, chained in that
+	 * order, once the matching media query confirms it's needed (gate.ts).
+	 * The `css` key on the boot descriptor carries that stylesheet's URL —
+	 * every selector in it is gated behind a class the engine applies at
+	 * runtime, so it stays a genuine request rather than inline dead bytes on
+	 * every page view, including touch devices where the gate downloads
+	 * nothing at all.
 	 *
 	 * Guarded on Elementor's presence, not just is_enabled(): without
 	 * Elementor there is no Site Settings tab to configure this from, so the
@@ -163,9 +163,9 @@ class Plugin {
 	 * every transition, and a head tag is invisible to that lookup anyway.
 	 *
 	 * Options ride the same block as inline JSON, not wp_localize_script:
-	 * localize string-casts scalars (`prefersGSAPRaf: true` would become
-	 * "1", `anchors.immediate: false` would become ""); json_encode
-	 * preserves types.
+	 * localize string-casts every top-level scalar it is handed
+	 * (`prefersGSAPRaf: true` would arrive as "1"); wp_json_encode preserves
+	 * types.
 	 */
 	public function print_head(): void {
 		if ( ! class_exists( '\Elementor\Plugin' ) || ! $this->is_enabled() ) {

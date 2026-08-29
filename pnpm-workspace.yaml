@@ -16,3 +16,4 @@ minimumReleaseAgeExclude:
   - '@fallow-cli/win32-x64-msvc@3.8.0'
   - fallow@3.8.0
   - happy-dom@20.11.1
+  - '@artemsemkin/elementor-types@2.0.0'

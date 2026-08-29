@@ -8,9 +8,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Reads the kit-bound Site Settings controls and emits exactly the
- * `TOptions` shape boot.ts consumes. The `anchors` block is derived here the
- * same way mapKitSettings() derives it for the editor's live-preview path
- * (TS side), so the two can never drift apart.
+ * `TOptions` shape boot.ts consumes. The `anchors` block is derived here by
+ * hand, and again in mapKitSettings() for the editor's live-preview path (TS
+ * side) — nothing enforces that parity, so a rule changed here has to be
+ * changed there too.
  *
  * Every control is JS-bound — there is no appearance surface, so nothing
  * here mirrors kit CSS variables. Without Elementor (or before a kit
