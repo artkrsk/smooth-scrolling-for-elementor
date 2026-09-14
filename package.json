@@ -5,7 +5,7 @@
   "type": "module",
   "types": "./src/ts/index.ts",
   "description": "Lenis-powered smooth scrolling for Elementor.",
-  "packageManager": "pnpm@11.27.0",
+  "packageManager": "pnpm@12.4.1",
   "engines": {
     "node": ">=24"
   },
