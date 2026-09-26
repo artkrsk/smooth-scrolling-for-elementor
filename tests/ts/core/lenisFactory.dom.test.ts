@@ -79,15 +79,10 @@ describe('createLenis', () => {
     expect(typeof lenis.options.easing).toBe('function')
   })
 
-  it('passes the derived anchors block through to the native anchors option', () => {
+  it('turns off the native anchors handler — anchors.ts owns anchor clicks', () => {
     lenis = createLenis(baseOptions())
 
-    expect(lenis.options.anchors).toMatchObject({
-      offset: 0,
-      immediate: false,
-      lock: false,
-      force: true
-    })
+    expect(lenis.options.anchors).toBe(false)
   })
 })
 

@@ -111,7 +111,9 @@ If `window.ScrollTrigger` is present, its cached scroll position is refreshed (`
 
 ## Anchor semantics
 
-Same-page `#anchor` links go through Lenis's own anchor handling, matched natively. Bare `#`, `/#` and `./#` — forms Lenis's own handler ignores because they carry no real hash — are handled separately by the plugin: `/#` and `./#` only trigger a scroll when they resolve to the current page's exact host and pathname. There's no trailing-slash normalization, so a link like `/#pricing` on a page at `/blog/` navigates to the homepage and scrolls there, the same as it would without this plugin. `#top` is not special-cased here; Lenis itself already treats it as scroll-to-0 when no `id="top"` element exists.
+Same-page `#anchor` links scroll through Lenis, matched the way Lenis's own anchor handling matches them (host + pathname, a real hash) — but the plugin owns the listener, and a click some other script already called `preventDefault()` on is left alone, so a tab, menu or popup that takes its link over isn't overridden. Bare `#`, `/#` and `./#` — forms Lenis's own handler ignores because they carry no real hash — scroll to the top: `/#` and `./#` only when they resolve to the current page's exact host and pathname. There's no trailing-slash normalization, so a link like `/#pricing` on a page at `/blog/` navigates to the homepage and scrolls there, the same as it would without this plugin. `#top` is not special-cased here; Lenis itself already treats it as scroll-to-0 when no `id="top"` element exists.
+
+Links into [Arts Horizontal Scroll](https://wordpress.org/plugins/horizontal-scroll-for-elementor/) panels are the one exception: every panel shares the pinned section's vertical position, so the plugin asks `window.ARTS_HS.getScrollTop()` where the panel lands, takes the click (`preventDefault()`, `history.pushState()`) and scrolls there through Lenis — also mid-scroll, when a native scroll would be overwritten by the running animation.
 
 ## Elementor control IDs are internal, not the contract
 

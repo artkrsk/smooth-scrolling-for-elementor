@@ -1,12 +1,12 @@
 import type Lenis from 'lenis'
 import type { IRafDriver, ISmoothScrolling } from '../interfaces'
 import type { TOptions } from '../types'
+import { createAnchors } from './anchors'
 import { applyDomState } from './domState'
 import { suppressElementorAnchors } from './elementorCompat'
 import { createLenis, resolveAnchorsOptions } from './lenisFactory'
 import { createRafDriver } from './rafDriver'
 import { syncScrollTrigger } from './scrollTriggerSync'
-import { createTopAnchors } from './topAnchors'
 
 /**
  * Owns the engine lifecycle: creates/destroys Lenis (plus its driver, sync,
@@ -21,23 +21,20 @@ export function createSmoothScrolling(options: TOptions): ISmoothScrolling {
   let lenis: Lenis | null = null
   let driver: IRafDriver | null = null
   let unsyncScrollTrigger: (() => void) | null = null
-  let removeTopAnchors: (() => void) | null = null
+  let removeAnchors: (() => void) | null = null
 
   const run = () => {
     lenis = createLenis(currentOptions)
     driver = createRafDriver(lenis, currentOptions.prefersGSAPRaf)
     unsyncScrollTrigger = syncScrollTrigger(lenis)
-    removeTopAnchors = createTopAnchors(
-      lenis,
-      resolveAnchorsOptions(currentOptions.lenisOptions.anchors)
-    )
+    removeAnchors = createAnchors(lenis, resolveAnchorsOptions(currentOptions.lenisOptions.anchors))
     suppressElementorAnchors()
     applyDomState(true)
   }
 
   const teardown = () => {
-    removeTopAnchors?.()
-    removeTopAnchors = null
+    removeAnchors?.()
+    removeAnchors = null
     unsyncScrollTrigger?.()
     unsyncScrollTrigger = null
     driver?.stop()

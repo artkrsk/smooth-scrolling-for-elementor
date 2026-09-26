@@ -3,10 +3,9 @@ import Lenis from 'lenis'
 import type { TAnchorsOptions, TOptions } from '../types'
 import { resolveEasing } from './easings'
 
-/** Resolves a derived anchors block into the shape Lenis's `anchors`
-    constructor option (and topAnchors.ts's `scrollTo()` calls) can use
-    directly. An unresolved easing name omits the key so Lenis falls back to
-    the main resolved easing. */
+/** Resolves a derived anchors block into the `scrollTo()` options
+    anchors.ts passes to Lenis. An unresolved easing name omits the key so
+    Lenis falls back to the main resolved easing. */
 export function resolveAnchorsOptions(anchors: TAnchorsOptions): ScrollToOptions {
   const easing = resolveEasing(anchors.easing)
   return {
@@ -23,7 +22,7 @@ export function resolveAnchorsOptions(anchors: TAnchorsOptions): ScrollToOptions
     PHP-derived `lenisOptions`, resolves easing names, and constructs the
     Lenis instance. */
 export function createLenis(options: TOptions): Lenis {
-  const { duration, easing, anchors } = options.lenisOptions
+  const { duration, easing } = options.lenisOptions
   const easingFn = resolveEasing(easing)
 
   return new Lenis({
@@ -32,6 +31,7 @@ export function createLenis(options: TOptions): Lenis {
     prevent: (node) => node.closest('.dialog-prevent-scroll') !== null,
     duration,
     ...(easingFn ? { easing: easingFn } : {}),
-    anchors: resolveAnchorsOptions(anchors)
+    // anchors.ts owns anchor clicks — Lenis's own listener ignores defaultPrevented
+    anchors: false
   })
 }
