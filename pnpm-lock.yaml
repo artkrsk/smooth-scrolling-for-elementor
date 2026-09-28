@@ -181,7 +181,14 @@ importers:
         version: 26.6.3
       '@vitest/coverage-v8':
         specifier: ^5.0.0
+<<<<<<< HEAD
         version: 5.0.2(vitest@5.0.2)
+=======
+        version: 5.0.1(vitest@5.0.1)
+      esbuild:
+        specifier: ^0.28.1
+        version: 0.28.1
+>>>>>>> f46d705 (feat(exports): add passive smooth scrolling contract)
       fallow:
         specifier: 3.30.0
         version: 3.30.0

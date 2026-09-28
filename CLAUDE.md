@@ -56,3 +56,15 @@ Custom esbuild/sass pipeline shipped by `@arts/wp-plugin-tooling` (`arts-wp dev|
 - Default Vitest environment is `node`, so an accidental `document` reach fails loudly. DOM suites are named `*.dom.test.ts` and opt in with a `// @vitest-environment happy-dom` docblock (jsdom is not an option: no matchMedia/ResizeObserver/IntersectionObserver, so `init()` throws).
 - Tests import source through the `@ts` alias. It is test-only — never valid inside `src/ts`, because consumers compile that source with their own config. `tests/ts/aliasBoundary.test.ts` enforces the split.
 - `tests/ts/support.ts` holds shared factories (fake Lenis, controllable matchMedia); `tests/ts/setup.ts` forces `import.meta.env.DEV` to false, matching the production build define (nothing in `src/ts` reads it today).
+
+## Package integration boundary
+
+`src/ts/contract/index.ts` is the explicit `/contract` entry for themes integrating with the
+installed WordPress provider. Export public types from leaf files, and keep runtime values passive
+(constants or pure helpers). No engine, boot, producer globals, or version define may enter its
+declaration/runtime graph. The package root remains the named factory API for direct library hosts;
+root type imports and legacy source/style subpaths remain compatible.
+
+`tests/ts/packageEntries.test.ts` compiles isolated consumers with no workspace ambient types and
+`skipLibCheck: false`, inspects contract bundles, and checks passive roots plus factory invocation.
+These checks use temporary outputs and never run the WordPress synchronization build.

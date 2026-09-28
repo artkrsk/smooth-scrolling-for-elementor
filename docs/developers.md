@@ -122,3 +122,26 @@ Site Settings → Smooth Scrolling is a thin UI over `arts_smooth_scrolling/opti
 ## What stays out
 
 No per-element opt-out attributes, no JS API for changing duration or easing at runtime (use the `arts_smooth_scrolling/options` filter, which is re-evaluated on every request), no ready-state CustomEvent — `ready` and `get()` already cover both the "wait for it" and "check right now" cases.
+
+## TypeScript package entries
+
+Themes integrating with the installed WordPress plugin use `@arts/smooth-scrolling/contract` for public
+types and passive values. This entry does not import the engine, initialize browser globals,
+load assets, install listeners, or depend on producer build defines. Keep the existing optional
+browser discovery checks: updating these compile-time imports does not require a newer installed
+WordPress plugin.
+
+The package root `@arts/smooth-scrolling` remains the passive library entry with its existing named
+factory API and root type exports. Direct library hosts explicitly create and initialize engines;
+WordPress continues to boot through its separate `boot.ts` bundle. The package ships TypeScript
+source for linked consumers, so a host needs a TypeScript-aware compiler. Existing
+`/package.json`, `/src/ts/*`, and `/src/styles/*` paths remain available for compatibility.
+
+`pnpm exec vitest run tests/ts/packageEntries.test.ts` checks isolated consumers with
+`skipLibCheck: false`, inspects bundled contract graphs, and invokes the public root factory
+without building or synchronizing WordPress assets.
+
+The contract preserves Lenis's full instance and constructor types, including
+`IArtsSmoothScrollingGlobal.load(): Promise<typeof Lenis>`. Lenis remains available through the
+linked provider checkout's dependencies; this change does not create a standalone declaration
+distribution. A future published declaration package must declare its Lenis dependency.
