@@ -1,4 +1,4 @@
-@use '../../node_modules/lenis/dist/lenis.css';
+@use 'lenis/dist/lenis.css';
 
 // Cancels Elementor's own `html { scroll-behavior: smooth }`, which its
 // always-loaded frontend.css ships under exactly this media query — native

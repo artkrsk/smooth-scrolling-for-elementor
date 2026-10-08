@@ -4,4 +4,5 @@
 export interface IJQueryObject {
   on(event: string, handler: (...args: unknown[]) => void): void
   off(event: string, selector: string, handler: (...args: unknown[]) => void): void
+  off(event: string, handler: (...args: unknown[]) => void): void
 }

@@ -1,10 +1,7 @@
 import type { ElementorFrontend } from '@artemsemkin/elementor-types'
 import type { IJQueryStatic } from '../interfaces'
 
-/** Guards suppressElementorAnchors() so its detect+unbind path runs once per
-    page load — repeated controller run() cycles (media flips, editor
-    reinits) must not re-execute the unbind or stack a second deferred
-    listener. */
+/** The WordPress adapter owns one deferred Elementor listener per app lifetime. */
 let hasRun = false
 
 /** Unbinds Elementor's classic anchor animator by the exact selector and
@@ -42,9 +39,9 @@ const unbindAnchors = (elementorFrontend: ElementorFrontend): boolean => {
  * disabled) degrade to native hash jumps, still smoothed by Elementor's own
  * `scroll-behavior: smooth` CSS.
  */
-export function suppressElementorAnchors(): void {
+export function suppressElementorAnchors(): () => void {
   if (hasRun) {
-    return
+    return () => {}
   }
   hasRun = true
 
@@ -57,18 +54,27 @@ export function suppressElementorAnchors(): void {
 
   const elementorFrontend = foreignWindow.elementorFrontend
   if (elementorFrontend && unbindAnchors(elementorFrontend)) {
-    return
+    return () => {
+      hasRun = false
+    }
   }
 
   const jQuery = foreignWindow.jQuery
   if (!jQuery) {
-    return
+    return () => {
+      hasRun = false
+    }
   }
 
-  jQuery(window).on('elementor/frontend/init', () => {
+  const onInit = () => {
     const frontend = foreignWindow.elementorFrontend
     if (frontend) {
       unbindAnchors(frontend)
     }
-  })
+  }
+  jQuery(window).on('elementor/frontend/init', onInit)
+  return () => {
+    hasRun = false
+    jQuery(window).off('elementor/frontend/init', onInit)
+  }
 }

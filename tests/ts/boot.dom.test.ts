@@ -1,8 +1,11 @@
 // @vitest-environment happy-dom
 
+import { createSmoothScrollingApp } from '@ts/createSmoothScrollingApp'
 import type { IGateGlobal, ISmoothScrolling } from '@ts/interfaces'
+import type { ISmoothScrollingApp } from '@ts/interfaces/ISmoothScrollingApp'
 import type { TOptions } from '@ts/types'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import metadata from '../../composer.json'
 
 /**
  * boot.ts is a side-effect-on-import module (the WordPress plugin entry), so
@@ -47,6 +50,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  ;(window.artsSmoothScrolling as ISmoothScrollingApp | undefined)?.destroy?.()
   vi.unstubAllGlobals()
 })
 
@@ -59,7 +63,7 @@ describe('self-created ready (no gate present)', () => {
     const global = window.artsSmoothScrolling
     expect(global).toBeDefined()
     expect(global?.get()).not.toBeNull()
-    expect(global?.version).toBe('0.0.0-test')
+    expect(global?.version).toBe(metadata.version)
     expect('__resolveReady' in (global as object)).toBe(false)
     await expect(global?.ready).resolves.toBe(global?.get())
   })
@@ -220,5 +224,85 @@ describe('kit-change bridge', () => {
 
     document.documentElement.appendChild(document.createElement('body'))
     document.dispatchEvent(new Event('DOMContentLoaded'))
+  })
+})
+
+describe('explicit library lifecycle', () => {
+  it('does not publish or run until init, then initializes only once', () => {
+    const app = createSmoothScrollingApp({ options: options() })
+    expect(window.artsSmoothScrolling).toBeUndefined()
+    expect(app.get()).toBeNull()
+    app.init()
+    const first = app.lenis
+    app.init()
+    expect(app.lenis).toBe(first)
+    app.destroy()
+    app.init()
+    expect(app.get()).toBeNull()
+    expect(window.artsSmoothScrolling).toBeUndefined()
+  })
+
+  it('cannot revive after disposal while waiting for DOMContentLoaded', () => {
+    const body = document.body
+    body.remove()
+    const app = createSmoothScrollingApp({ options: options() })
+    app.init()
+    app.destroy()
+    document.documentElement.appendChild(body)
+    document.dispatchEvent(new Event('DOMContentLoaded'))
+    expect(app.get()).toBeNull()
+    expect(window.artsSmoothScrolling).toBeUndefined()
+  })
+
+  it('does not disturb the current owner when a retired bootstrap arrives', () => {
+    const lifetime = new AbortController()
+    lifetime.abort()
+    const current = createSmoothScrollingApp({ options: options() })
+    current.init()
+    const late = createSmoothScrollingApp({ options: options(), signal: lifetime.signal })
+    late.init()
+    late.destroy()
+    expect(window.artsSmoothScrolling).toBe(current)
+    expect(current.lenis).not.toBeNull()
+  })
+
+  it('replaces the previous app and stale destroy cannot clear the new app', () => {
+    const first = createSmoothScrollingApp({ options: options() })
+    first.init()
+    const second = createSmoothScrollingApp({ options: options() })
+    second.init()
+    expect(first.signal.aborted).toBe(true)
+    expect(first.lenis).toBeNull()
+    first.destroy()
+    expect(window.artsSmoothScrolling).toBe(second)
+    expect(second.lenis).not.toBeNull()
+  })
+
+  it('keeps the newest app when prior disposal reenters initialization', () => {
+    const first = createSmoothScrollingApp({ options: options() })
+    const second = createSmoothScrollingApp({ options: options() })
+    const newest = createSmoothScrollingApp({ options: options() })
+    first.init()
+    first.signal.addEventListener('abort', () => newest.init(), { once: true })
+    second.init()
+    expect(window.artsSmoothScrolling).toBe(newest)
+    expect(second.signal.aborted).toBe(true)
+    expect(newest.lenis).not.toBeNull()
+    expect(document.documentElement.classList.contains('has-smooth-scroll')).toBe(true)
+  })
+
+  it('removes the WordPress kit bridge when its app is disposed', async () => {
+    window.artsSmoothScrollingOptions = options()
+    await loadBoot()
+    const app = window.artsSmoothScrolling as ISmoothScrollingApp
+    const controller = app.get()
+    const reinit = vi.spyOn(controller as ISmoothScrolling, 'reinit')
+    app.destroy()
+    window.dispatchEvent(
+      new CustomEvent('arts-smooth-scrolling:kit-change', {
+        detail: { settings: { arts_smooth_scrolling_duration: { size: 2 } } }
+      })
+    )
+    expect(reinit).not.toHaveBeenCalled()
   })
 })

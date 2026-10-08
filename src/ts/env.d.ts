@@ -4,6 +4,3 @@
 interface ImportMeta {
   env?: { DEV?: boolean }
 }
-
-/** Stamped from composer.json by the esbuild define — plugin bundle only. */
-declare const __ARTS_SMOOTH_SCROLLING_VERSION__: string

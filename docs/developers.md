@@ -131,17 +131,59 @@ load assets, install listeners, or depend on producer build defines. Keep the ex
 browser discovery checks: updating these compile-time imports does not require a newer installed
 WordPress plugin.
 
-The package root `@arts/smooth-scrolling` remains the passive library entry with its existing named
-factory API and root type exports. Direct library hosts explicitly create and initialize engines;
-WordPress continues to boot through its separate `boot.ts` bundle. The package ships TypeScript
-source for linked consumers, so a host needs a TypeScript-aware compiler. Existing
-`/package.json`, `/src/ts/*`, and `/src/styles/*` paths remain available for compatibility.
+The root exports `createSmoothScrolling` and `createSmoothScrollingApp`. Imports and app construction
+are passive; `app.init()` publishes `window.artsSmoothScrolling` and initializes the controller when
+the document body exists. `app.destroy()` permanently disposes that owner, including pending startup.
+WordPress's separate boot adapter owns the Elementor kit and legacy anchor listeners.
+
+`pnpm build:library` produces ESM and CSS in `dist/esm`, declarations in `dist/types`, and does not
+write WordPress assets or mirror paths. Default imports use those outputs. Bundlers and TypeScript
+can select the `arts-source` condition for editable source. `/styles.scss` exposes the source
+stylesheet (add the consumer's `node_modules` to Sass `loadPaths` for Lenis); `/styles.css` is compiled
+CSS. Existing `/package.json`, `/src/ts/*`, and `/src/styles/*` paths remain available.
+
+```ts
+import { createSmoothScrollingApp } from '@arts/smooth-scrolling'
+import '@arts/smooth-scrolling/styles.css'
+
+const app = createSmoothScrollingApp({
+  options: { matchMedia: '(hover: hover)', prefersGSAPRaf: true, lenisOptions: {} }
+})
+app.init()
+// Dispose the owner at application teardown.
+app.destroy()
+```
+
+For deferred loading, use the engine-free gate and a stylesheet URL supplied by the host bundler:
+
+```ts
+import { createSmoothScrollingGate } from '@arts/smooth-scrolling/gate'
+
+const options = { matchMedia: '(hover: hover)', prefersGSAPRaf: true, lenisOptions: {} }
+const gate = createSmoothScrollingGate({
+  options,
+  css: '/assets/smooth-scrolling.css',
+  load: async (signal) => {
+    const { createSmoothScrollingApp } = await import('@arts/smooth-scrolling')
+    createSmoothScrollingApp({ options, signal }).init()
+  }
+})
+gate.init()
+// Also disposes a loaded app and prevents a delayed import from starting it.
+gate.destroy()
+```
+
+The gate waits for CSS before calling `load`. Pass its captured signal through the asynchronous
+bootstrap; reading a replacement global after the import would claim the wrong lifetime. The
+WordPress adapter instead supplies a classic `js` URL and binds its original signal to the script.
+Eligibility, ready semantics, and the `load()` Lenis constructor API match the WordPress provider.
+Pending `load()` calls reject on disposal; `ready` stays pending if no controller was created.
 
 `pnpm exec vitest run tests/ts/packageEntries.test.ts` checks isolated consumers with
 `skipLibCheck: false`, inspects bundled contract graphs, and invokes the public root factory
 without building or synchronizing WordPress assets.
 
 The contract preserves Lenis's full instance and constructor types, including
-`IArtsSmoothScrollingGlobal.load(): Promise<typeof Lenis>`. Lenis remains available through the
-linked provider checkout's dependencies; this change does not create a standalone declaration
-distribution. A future published declaration package must declare its Lenis dependency.
+`IArtsSmoothScrollingGlobal.load(): Promise<typeof Lenis>`. Lenis is a declared runtime dependency
+and stays external in the ESM build, so hosts use one constructor. WordPress bundles its own copy
+as before. The runtime version comes from `composer.json`; no consumer version define is needed.

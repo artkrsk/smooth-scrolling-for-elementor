@@ -23,6 +23,7 @@ Lenis-powered smooth scrolling for Elementor, shipped two ways from one codebase
 - `pnpm knip` — dead-export check
 - `pnpm dev:plugin` — watch mode; compiles into `src/php/libraries/` and, only if `DEV_TARGET` is set in the gitignored `.env`, mirrors the plugin into that Local site directory.
 - `pnpm build` — release build: stamps versions, stages `dist/smooth-scrolling-for-elementor/`, zips it.
+- `pnpm build:library` — independent ESM/CSS + declaration output in `dist/esm` and `dist/types`; never mirrors WordPress assets.
 
 Hooks (lefthook) run sequentially, since each step reads the previous one's rewrites. Pre-commit auto-fixes staged files with Biome, stylelint and phpcbf, then typechecks. Pre-push runs the proof: full test suite, PHPStan, phpcs. Both are advisory (`LEFTHOOK=0` skips them); CI is authoritative.
 
@@ -32,7 +33,7 @@ A three-stage load spanning PHP and TS:
 
 1. **PHP prints, never enqueues.** `Plugin::print_head()` (`wp_head`, priority 99) emits one inline block: `window.artsSmoothScrollingOptions` (from `Options::build()`, filtered through `arts_smooth_scrolling/options`), `window.artsSmoothScrollingBoot` (filemtime-versioned engine JS/CSS URLs plus the editor flag), and the compiled `gate.js` contents — all wrapped in optimizer opt-out markers (Autoptimize, LiteSpeed, Rocket Loader, WP Rocket). `arts_smooth_scrolling/enabled` is the per-request kill switch; a disabled request instead gets `no-smooth-scroll` on `<html>` via `language_attributes`. Everything is guarded on Elementor's presence — without Elementor the plugin is fully inert.
 2. **`src/ts/gate.ts`** — a tiny pre-paint gate bundled separately (no sourcemap, no banner). Installs the `window.artsSmoothScrolling` discovery global with a pending `ready` promise, predicts the `has-smooth-scroll`/`no-smooth-scroll` class on `<html>`, and lazily injects the compiled stylesheet then — chained on its `onload`, so a CSS failure aborts the boot — the engine bundle: immediately in the editor preview or when the `matchMedia` query already matches, otherwise on the first matching `change` event. It also owns `load()`, the public "give me the bundled Lenis class for my own container" entry point: it forces that same injection on demand, memoized onto one promise that boot.ts settles via `__resolveLoad` — which is what the `loadImpl`/`loadPromise`/`settleLoad` machinery exists for.
-3. **`src/ts/boot.ts`** — engine entry, side-effect boot (`index.ts` is the passive library surface for direct-import consumers). Claims the gate's `__resolveReady`, builds the controller via `createSmoothScrolling()` (`src/ts/core/controller.ts`, which owns the Lenis lifecycle: raf driver — GSAP ticker preferred when `window.gsap` exists — ScrollTrigger sync, anchor handling, `<html>` state), and listens for the `arts-smooth-scrolling:kit-change` CustomEvent to `reinit()` on Site Settings changes.
+3. **`src/ts/boot.ts`** — WordPress adapter around `createSmoothScrollingApp`, with disposable Elementor kit/anchor listeners. The public `/gate` factory is engine-free; its `load(signal)` callback imports the root factory after CSS and passes the original lifetime to `{ options, signal }`. Classic WordPress scripts carry that signal on `document.currentScript`, so delayed scripts cannot adopt a replacement gate. Both factories require explicit `init()` and are permanently disposed by `destroy()`.
 
 The editor side of that CustomEvent is `Plugin::print_editor_bridge()`: a `$e` UI-After hook on `document/elements/settings` in the editor window that forwards kit-setting changes into the preview iframe. The editor preview bypasses both the `enabled` filter and lazy loading — the engine must be live before the first Site Settings change.
 
@@ -48,8 +49,8 @@ Invariants:
 Custom esbuild/sass pipeline shipped by `@arts/wp-plugin-tooling` (`arts-wp dev|build`), configured by `project.config.js`. There is no `build/` directory in this repo — the scripts live in the tooling package.
 
 - Compiled assets land in `src/php/libraries/smooth-scrolling-for-elementor/` and are **gitignored** — the composer-symlink consumer (velum-core) sees whatever the local dev/build run produced; the release build stages fresh assets into `dist/`. Never hand-edit `gate.js`, `smooth-scrolling-for-elementor.js/.css` there; edit `src/ts` / `src/styles` and rebuild.
-- `composer.json` `"version"` is the single version source. The build stamps it into the plugin header, `readme.txt`, `package.json`, the `ARTS_SMOOTH_SCROLLING_PLUGIN_VERSION` constant, and the `__ARTS_SMOOTH_SCROLLING_VERSION__` esbuild define. To release: bump composer.json, build, push a `v*` tag — the release workflow validates the tag against the stamped files and takes the changelog entry from `src/wordpress-plugin/readme.txt`.
-- `project.config.js` edits need a dev-mode restart (Node module cache). `composer.json` is re-read fresh per call, and the watcher that restamps on a version bump only runs when `DEV_TARGET` is set — even then the running esbuild banner and version define keep the old value until dev restarts.
+- `composer.json` `"version"` is the single version source. Runtime code imports its named version through `version.ts`; both builds inline it and source consumers need no version define. The WordPress build also stamps the plugin header, `readme.txt`, `package.json` and the PHP version constant. To release: bump composer.json, build, push a `v*` tag — the release workflow validates the tag against the stamped files and takes the changelog entry from `src/wordpress-plugin/readme.txt`.
+- `project.config.js` edits need a dev-mode restart (Node module cache). `composer.json` is re-read fresh per call, and the watcher that restamps on a version bump only runs when `DEV_TARGET` is set — the running esbuild banner keeps the old value until dev restarts.
 
 ## Tests
 
@@ -64,6 +65,11 @@ installed WordPress provider. Export public types from leaf files, and keep runt
 (constants or pure helpers). No engine, boot, producer globals, or version define may enter its
 declaration/runtime graph. The package root remains the named factory API for direct library hosts;
 root type imports and legacy source/style subpaths remain compatible.
+
+Default exports resolve to the library build; editable source requires `arts-source` in both the
+consumer bundler and TypeScript. Lenis is external in ESM and declared as a runtime dependency;
+the WordPress bundle still owns its copy. `/styles.scss` and `/styles.css` are explicit so Sass's
+package importer cannot confuse source and compiled files.
 
 `tests/ts/packageEntries.test.ts` compiles isolated consumers with no workspace ambient types and
 `skipLibCheck: false`, inspects contract bundles, and checks passive roots plus factory invocation.

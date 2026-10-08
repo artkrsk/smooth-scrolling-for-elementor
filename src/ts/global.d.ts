@@ -7,10 +7,9 @@ import type { TGateBoot, TKitSettings, TOptions } from './types'
  * `import type { IArtsSmoothScrollingGlobal } from '@arts/smooth-scrolling'`.
  *
  * This file augments `Window` only for our own entries (gate.ts/boot.ts) —
- * consumers never compile or load it. `package.json`'s `types` field points
- * straight at `src/ts/index.ts` (no d.ts build step), so any module reachable
- * from that entry is compiled raw by consumers, who never pick up this
- * augmentation. Modules under `src/ts` (anything `index.ts` imports,
+ * consumers never compile or load it. The library declaration build and
+ * `arts-source` module graph both exclude this augmentation. Modules under
+ * `src/ts` (anything `index.ts` imports,
  * transitively) must therefore stay self-contained: foreign runtime globals
  * (gsap, ScrollTrigger, elementorFrontend, jQuery, …) are read through a
  * locally-typed cast at the read site instead of being declared here.

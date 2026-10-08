@@ -7,6 +7,8 @@ import type { ISmoothScrolling } from './ISmoothScrolling'
     replaces the global with the engine-backed object, so this shape exists
     only between gate parse and engine init. */
 export interface IGateGlobal extends IArtsSmoothScrollingGlobal {
+  readonly signal?: AbortSignal
+  destroy?: () => void
   /** Claimed (and thereby retired) by boot.ts. */
   __resolveReady: (controller: ISmoothScrolling) => void
   /** Called by boot.ts once the engine class is available, so a load()

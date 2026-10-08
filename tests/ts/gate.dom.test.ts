@@ -1,7 +1,11 @@
 // @vitest-environment happy-dom
 
+import { createSmoothScrollingApp } from '@ts/createSmoothScrollingApp'
+import { createSmoothScrollingGate } from '@ts/createSmoothScrollingGate'
+import type { ISmoothScrollingGate } from '@ts/interfaces/ISmoothScrollingGate'
 import type { TGateBoot, TOptions } from '@ts/types'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import metadata from '../../composer.json'
 import { fakeMedia } from './support'
 
 /**
@@ -65,6 +69,11 @@ beforeEach(() => {
 })
 
 afterEach(() => {
+  const gate = window.artsSmoothScrolling as ISmoothScrollingGate | undefined
+  if (gate?.destroy) {
+    void gate.load().catch(() => {})
+    gate.destroy()
+  }
   vi.unstubAllGlobals()
 })
 
@@ -92,7 +101,7 @@ describe('placeholder global', () => {
     expect(global).toBeDefined()
     expect(global?.get()).toBeNull()
     expect(global?.lenis).toBeNull()
-    expect(global?.version).toBe('0.0.0-test')
+    expect(global?.version).toBe(metadata.version)
     expect(global?.ready).toBeInstanceOf(Promise)
     // biome-ignore lint/suspicious/noExplicitAny: reaching for the gate-only field
     expect(typeof (global as any).__resolveReady).toBe('function')
@@ -455,5 +464,117 @@ describe('the css → js chain', () => {
 
     expect(hasInactiveClass()).toBe(true)
     expect(hasActiveClass()).toBe(false)
+  })
+})
+
+describe('owned library gate', () => {
+  it('is passive until init and passes the original lifetime to the ESM bootstrap after CSS', async () => {
+    const load = vi.fn(async (signal: AbortSignal) => {
+      createSmoothScrollingApp({ options: options(), signal }).init()
+    })
+    const gate = createSmoothScrollingGate({ options: options(), css: boot().css, load })
+    expect(window.artsSmoothScrolling).toBeUndefined()
+    expect(injectedLink()).toBeNull()
+    gate.init()
+    gate.init()
+    expect(load).not.toHaveBeenCalled()
+    injectedLink()?.onload?.(new Event('load'))
+    await gate.ready
+    expect(load).toHaveBeenCalledExactlyOnceWith(gate.signal)
+    expect(window.artsSmoothScrolling?.lenis).not.toBeNull()
+    gate.destroy()
+    expect(window.artsSmoothScrolling).toBeUndefined()
+  })
+
+  it('ignores a captured CSS callback after disposal', () => {
+    const load = vi.fn(async () => {})
+    const gate = createSmoothScrollingGate({ options: options(), css: boot().css, load })
+    gate.init()
+    const link = injectedLink() as HTMLLinkElement
+    const onload = link.onload
+    gate.destroy()
+    onload?.call(link, new Event('load'))
+    expect(load).not.toHaveBeenCalled()
+    expect(injectedLink()).toBeNull()
+  })
+
+  it('does not revive an in-flight ESM bootstrap after a replacement gate initializes', async () => {
+    let resume!: () => void
+    const delay = new Promise<void>((resolve) => {
+      resume = resolve
+    })
+    const old = createSmoothScrollingGate({
+      options: options(),
+      css: boot().css,
+      load: async (signal) => {
+        await delay
+        createSmoothScrollingApp({ options: options(), signal }).init()
+      }
+    })
+    old.init()
+    injectedLink()?.onload?.(new Event('load'))
+    await Promise.resolve()
+    const next = createSmoothScrollingGate({
+      options: options(),
+      css: boot().css,
+      load: async () => {}
+    })
+    next.init()
+    resume()
+    await delay
+    await Promise.resolve()
+    expect(old.signal.aborted).toBe(true)
+    expect(window.artsSmoothScrolling).toBe(next)
+    expect(next.get()).toBeNull()
+  })
+
+  it('keeps the newest gate and its stylesheet when disposal reenters initialization', () => {
+    const first = createSmoothScrollingGate({ options: options(), ...boot() })
+    const second = createSmoothScrollingGate({ options: options(), ...boot() })
+    const newest = createSmoothScrollingGate({ options: options(), ...boot() })
+    first.init()
+    first.signal.addEventListener('abort', () => newest.init(), { once: true })
+    second.init()
+    expect(window.artsSmoothScrolling).toBe(newest)
+    expect(second.signal.aborted).toBe(true)
+    expect(injectedLink()).not.toBeNull()
+    expect(document.querySelectorAll(`#${GATE_CSS_ID}`)).toHaveLength(1)
+  })
+
+  it('load exposes Lenis without enabling page scroll on a media mismatch', async () => {
+    fakeMedia(false)
+    const selected = options({ matchMedia: '(hover: hover)' })
+    const gate = createSmoothScrollingGate({
+      options: selected,
+      css: boot().css,
+      load: async (signal) => {
+        createSmoothScrollingApp({ options: selected, signal }).init()
+      }
+    })
+    gate.init()
+    expect(injectedLink()).toBeNull()
+    const load = gate.load()
+    expect(load).toBe(gate.load())
+    injectedLink()?.onload?.(new Event('load'))
+    const LenisClass = await load
+    expect(LenisClass).toBe(await window.artsSmoothScrolling?.load())
+    expect(window.artsSmoothScrolling?.lenis).toBeNull()
+    expect(hasInactiveClass()).toBe(true)
+    gate.destroy()
+  })
+
+  it('keeps the original lifetime on a classic script after the gate is replaced', async () => {
+    const old = createSmoothScrollingGate({ options: options(), ...boot() })
+    old.init()
+    injectedLink()?.onload?.(new Event('load'))
+    const script = injectedScript() as HTMLScriptElement
+    const next = createSmoothScrollingGate({ options: options(), ...boot() })
+    next.init()
+    vi.spyOn(document, 'currentScript', 'get').mockReturnValue(script)
+    vi.resetModules()
+    await import('@ts/boot')
+    expect(window.artsSmoothScrolling).toBe(next)
+    expect(next.get()).toBeNull()
+    vi.restoreAllMocks()
   })
 })
