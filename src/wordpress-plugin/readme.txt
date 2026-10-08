@@ -4,7 +4,7 @@ Tags: smooth scroll, scrolling, lenis, momentum scrolling, elementor
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0
 GitHub Plugin URI: https://github.com/artkrsk/smooth-scrolling-for-elementor/
@@ -76,6 +76,10 @@ Not certified yet with 1.0.0. The engine is designed to persist across such tran
 2. Duration, easing, and the disable-on-touch switch.
 
 == Changelog ==
+
+= 1.0.3 =
+* fixed: anchor links that tabs, menus or other scripts have already handled are no longer scrolled a second time.
+* fixed: links to panels inside Arts Horizontal Scroll sections now scroll to the right panel.
 
 = 1.0.2 =
 * improved: updated the Lenis smooth-scrolling engine.
