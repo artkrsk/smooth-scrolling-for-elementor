@@ -138,6 +138,7 @@ describe('a click another script already prevented', () => {
 
 describe('links into Arts Horizontal Scroll panels', () => {
   const foreign = window as Window & {
+    artsHorizontalScroll?: { getScrollTop?: (target: Element) => number | null }
     ARTS_HS?: { getScrollTop?: (target: Element) => number | null }
     elementorFrontend?: { isEditMode?: () => boolean }
   }
@@ -149,7 +150,7 @@ describe('links into Arts Horizontal Scroll panels', () => {
     const a = document.createElement('a')
     a.setAttribute('href', href)
     document.body.append(panel, a)
-    foreign.ARTS_HS = { getScrollTop: (target) => (target === panel ? 1234 : null) }
+    foreign.artsHorizontalScroll = { getScrollTop: (target) => (target === panel ? 1234 : null) }
     return a
   }
 
@@ -160,6 +161,7 @@ describe('links into Arts Horizontal Scroll panels', () => {
   }
 
   afterEach(() => {
+    delete foreign.artsHorizontalScroll
     delete foreign.ARTS_HS
     delete foreign.elementorFrontend
   })
@@ -173,6 +175,17 @@ describe('links into Arts Horizontal Scroll panels', () => {
     expect(lenis.scrollTo).toHaveBeenCalledExactlyOnceWith(1234, anchorsOptions)
     expect(event.defaultPrevented).toBe(true)
     expect(window.location.hash).toBe('#panel')
+  })
+
+  it('lands the panel through the name Horizontal Scroll 1.4.x published', () => {
+    remove = createAnchors(lenis as never, anchorsOptions)
+    const a = panelLink()
+    delete foreign.artsHorizontalScroll
+    foreign.ARTS_HS = { getScrollTop: (target) => (target.id === 'panel' ? 1234 : null) }
+
+    cancelableClick(a)
+
+    expect(lenis.scrollTo).toHaveBeenCalledExactlyOnceWith(1234, anchorsOptions)
   })
 
   it('takes it before a document capture listener sees it', () => {
@@ -206,7 +219,7 @@ describe('links into Arts Horizontal Scroll panels', () => {
   it('uses the regular path when HS is not on the page', () => {
     remove = createAnchors(lenis as never, anchorsOptions)
     const a = panelLink()
-    delete foreign.ARTS_HS
+    delete foreign.artsHorizontalScroll
 
     cancelableClick(a)
 

@@ -2,11 +2,15 @@ import type Lenis from 'lenis'
 import type { ScrollToOptions } from 'lenis'
 
 /** Foreign globals read here, typed at the read site (see global.d.ts).
-    `ARTS_HS.getScrollTop` is Arts Horizontal Scroll's public answer to "which
-    document scrollY puts this target's panel on stage" — null outside a
-    measured, horizontally scrubbing section. */
+    `artsHorizontalScroll.getScrollTop` is Arts Horizontal Scroll's public
+    answer to "which document scrollY puts this target's panel on stage" —
+    null outside a measured, horizontally scrubbing section. Its 1.4.x
+    published the same surface as `ARTS_HS`; sites update the two plugins
+    independently, so either name is read. */
+type THorizontalScroll = { getScrollTop?: (target: Element) => number | null }
 type TForeignWindow = Window & {
-  ARTS_HS?: { getScrollTop?: (target: Element) => number | null }
+  artsHorizontalScroll?: THorizontalScroll
+  ARTS_HS?: THorizontalScroll
   elementorFrontend?: { isEditMode?: () => boolean }
 }
 
@@ -79,7 +83,8 @@ export function createAnchors(lenis: Lenis, anchorsOptions: ScrollToOptions): ()
       return
     }
     const target = resolveHashTarget(url.hash)
-    const top = target ? foreign.ARTS_HS?.getScrollTop?.(target) : null
+    const hs = foreign.artsHorizontalScroll ?? foreign.ARTS_HS
+    const top = target ? hs?.getScrollTop?.(target) : null
     if (typeof top !== 'number') {
       return
     }
