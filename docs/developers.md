@@ -115,6 +115,10 @@ Same-page `#anchor` links scroll through Lenis, matched the way Lenis's own anch
 
 Links into [Arts Horizontal Scroll](https://wordpress.org/plugins/horizontal-scroll-for-elementor/) panels are the one exception: every panel shares the pinned section's vertical position, so the plugin asks `window.artsHorizontalScroll.getScrollTop()` (`window.ARTS_HS` on Horizontal Scroll 1.4.x) where the panel lands, takes the click (`preventDefault()`, `history.pushState()`) and scrolls there through Lenis — also mid-scroll, when a native scroll would be overwritten by the running animation.
 
+## Wheel events other scripts consumed
+
+A wheel event some other script already called `preventDefault()` on does not scroll the page: an embed that takes the wheel for itself (a Google Map zooming on ⌘/Ctrl + scroll, a 3D viewer, a custom slider) keeps it, as it would without smooth scrolling. Lenis on its own ignores `defaultPrevented` and would scroll the page underneath. A wheel nobody prevented, including a plain scroll over a map in cooperative mode, still scrolls the page smoothly. Touch input is unaffected.
+
 ## Elementor control IDs are internal, not the contract
 
 Site Settings → Smooth Scrolling is a thin UI over `arts_smooth_scrolling/options`. Its control IDs, defaults and grouping may change between versions without notice — build against the filter payload and the runtime API above, not against `arts_smooth_scrolling_duration` and friends.

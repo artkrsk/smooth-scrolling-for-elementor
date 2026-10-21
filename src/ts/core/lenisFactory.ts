@@ -29,6 +29,9 @@ export function createLenis(options: TOptions): Lenis {
     autoRaf: false,
     stopInertiaOnNavigate: true,
     prevent: (node) => node.closest('.dialog-prevent-scroll') !== null,
+    // A wheel an embed consumed (a map's modifier-zoom, a 3D viewer) is prevented before it bubbles
+    // to Lenis's window listener, which stops native scrolling but not Lenis's own scrollTo
+    virtualScroll: ({ event }) => !(event.type === 'wheel' && event.defaultPrevented),
     duration,
     ...(easingFn ? { easing: easingFn } : {}),
     // anchors.ts owns anchor clicks — Lenis's own listener ignores defaultPrevented
