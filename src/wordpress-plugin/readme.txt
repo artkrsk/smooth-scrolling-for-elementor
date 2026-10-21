@@ -4,7 +4,7 @@ Tags: smooth scroll, scrolling, lenis, momentum scrolling, elementor
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.0.4
+Stable tag: 1.0.5
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0
 GitHub Plugin URI: https://github.com/artkrsk/smooth-scrolling-for-elementor/
@@ -77,7 +77,7 @@ Not certified yet with 1.0.0. The engine is designed to persist across such tran
 
 == Changelog ==
 
-= 1.0.5 =
+= 1.0.5 – October 21, 2026 =
 * fixed: scrolling over an embed that uses the mouse wheel itself, such as a Google Map zooming with Cmd/Ctrl + scroll or a 3D viewer, no longer scrolls the page underneath.
 
 = 1.0.4 – October 13, 2026 =

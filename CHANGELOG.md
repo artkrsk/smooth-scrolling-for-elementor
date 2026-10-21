@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.5 – October 21, 2026
+
+* fixed: scrolling over an embed that uses the mouse wheel itself, such as a Google Map zooming with Cmd/Ctrl + scroll or a 3D viewer, no longer scrolls the page underneath.
+
 ## 1.0.4 – October 13, 2026
 
 * fixed: links to panels inside Arts Horizontal Scroll sections keep working after that plugin's update.
