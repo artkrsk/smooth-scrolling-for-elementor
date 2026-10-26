@@ -4,21 +4,21 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "693450a0abde93940c432442fa9e68a1",
+    "content-hash": "417f85324b49e73aa0cf28f065937d3c",
     "packages": [],
     "packages-dev": [
         {
             "name": "arts/elementor-stubs",
-            "version": "v4.3.3",
+            "version": "v4.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/artkrsk/elementor-stubs.git",
-                "reference": "0f0a562a9c94c4db59715361e19dcf48f132a157"
+                "reference": "91dd4da92ab9631314b5b5409cdffdbcd6c62e9e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/artkrsk/elementor-stubs/zipball/0f0a562a9c94c4db59715361e19dcf48f132a157",
-                "reference": "0f0a562a9c94c4db59715361e19dcf48f132a157",
+                "url": "https://api.github.com/repos/artkrsk/elementor-stubs/zipball/91dd4da92ab9631314b5b5409cdffdbcd6c62e9e",
+                "reference": "91dd4da92ab9631314b5b5409cdffdbcd6c62e9e",
                 "shasum": ""
             },
             "require": {
@@ -64,7 +64,7 @@
             ],
             "support": {
                 "issues": "https://github.com/artkrsk/elementor-stubs/issues",
-                "source": "https://github.com/artkrsk/elementor-stubs/tree/v4.3.3"
+                "source": "https://github.com/artkrsk/elementor-stubs/tree/v4.3.5"
             },
             "funding": [
                 {
@@ -72,7 +72,7 @@
                     "type": "buy_me_a_coffee"
                 }
             ],
-            "time": "2026-10-05T11:44:15+00:00"
+            "time": "2026-10-15T03:48:19+00:00"
         },
         {
             "name": "arts/wp-plugin-standards",
@@ -789,11 +789,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.3.1",
+            "version": "2.3.2",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/6155239b488e95d26d1ebd95c6b4bb294d7f09db",
-                "reference": "6155239b488e95d26d1ebd95c6b4bb294d7f09db",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/18bc23a0682f08591529377d271b5c4dfe9ed1dd",
+                "reference": "18bc23a0682f08591529377d271b5c4dfe9ed1dd",
                 "shasum": ""
             },
             "require": {
@@ -849,7 +849,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-10-08T21:09:11+00:00"
+            "time": "2026-10-24T11:36:00+00:00"
         },
         {
             "name": "squizlabs/php_codesniffer",
