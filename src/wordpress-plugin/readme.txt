@@ -48,7 +48,7 @@ A small inline loader sets the page's scroll state synchronously and fetches the
 
 = Does it work with GSAP and ScrollTrigger? =
 
-Yes, automatically. If `window.gsap` is present, the engine drives Lenis off GSAP's ticker (added with priority, so it runs ahead of GSAP's own tweens) instead of its own animation-frame loop, and calls `gsap.ticker.lagSmoothing(0)` once — the standard recipe for pairing GSAP with a smooth-scroll library. That call changes a global GSAP setting and is not reverted if smooth scrolling is later disabled.
+Yes, automatically. If `window.gsap` is present, the engine drives Lenis off GSAP's ticker (added with priority, so it runs ahead of GSAP's own tweens) instead of its own animation-frame loop. GSAP may load after the engine: the engine switches to the ticker on the first frame it appears. Scrolling itself follows the browser's frame clock, so no global GSAP setting is changed and GSAP's lag smoothing stays at its default.
 
 = What happens when I click a link like /#pricing on a page that isn't the homepage? =
 

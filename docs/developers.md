@@ -41,7 +41,7 @@ const rail = new Lenis({ wrapper: el, content: inner, orientation: 'horizontal',
 
 Guard the call with `?.`, same as `ready` — the global doesn't exist at all when the plugin is disabled via the `arts_smooth_scrolling/enabled` filter. `load()` never enables page-level smooth scrolling: the page controller has its own `matchMedia` gate and stays exactly as it is regardless of when or how often you call `load()`, so it's safe to call from anywhere, including a touch device where the page controller stays idle. It's memoized — concurrent callers share one promise and one injection — and rejects if the boot descriptor is absent or either asset fails to load.
 
-You drive the instance you get back yourself, with `autoRaf: true` or your own ticker calling `lenis.raf(time)`. If `window.gsap` is present and the PHP-controlled `prefersGSAPRaf` stays at its default `true`, the page engine has already called `gsap.ticker.lagSmoothing(0)` globally (see GSAP integration below) — useful to know if you're driving your container off GSAP's ticker too.
+You drive the instance you get back yourself, with `autoRaf: true` or your own ticker calling `lenis.raf(time)`. The page engine changes no global GSAP setting, so a container driven off GSAP's ticker gets GSAP's defaults; if you do that, pass it the frame clock (`document.timeline.currentTime`) rather than the ticker's `time * 1000`, for the reason given under GSAP integration below.
 
 ## Server-side filters
 
@@ -105,7 +105,7 @@ Beyond that, the plugin ships Lenis's own stylesheet as-is (`lenis-*` classes on
 
 ## GSAP integration
 
-If `window.gsap` is present (and the PHP-controlled `prefersGSAPRaf` stays at its default `true`), the engine drives Lenis off GSAP's own ticker instead of running its own `requestAnimationFrame` loop — added via `gsap.ticker.add(fn, false, true)`, whose third argument prioritizes it ahead of GSAP's own tween renders so Lenis's scroll position is current before any ScrollTrigger-bound tween reads it. Adopting the ticker also calls `gsap.ticker.lagSmoothing(0)` once, the standard recipe for pairing GSAP with a smooth-scroll library. That call changes a global GSAP setting and is not reverted when the engine tears down.
+If `window.gsap` is present (and the PHP-controlled `prefersGSAPRaf` stays at its default `true`), the engine drives Lenis off GSAP's own ticker instead of running its own `requestAnimationFrame` loop — added via `gsap.ticker.add(fn, false, true)`, whose third argument prioritizes it ahead of GSAP's own tween renders so Lenis's scroll position is current before any ScrollTrigger-bound tween reads it. GSAP doesn't have to be there first: the engine is loaded asynchronously and GSAP is usually deferred, so until `window.gsap` exists the engine runs its own loop and hands over on the first frame it appears. The ticker is used for ordering only — Lenis is advanced on the document's frame clock (`document.timeline.currentTime`), not on the ticker's `time`, which is `Date.now()`-based and would turn its millisecond rounding into uneven scroll steps. For the same reason the engine does not call `gsap.ticker.lagSmoothing(0)`: GSAP's lag smoothing stays at its default, and no global GSAP setting is changed.
 
 If `window.ScrollTrigger` is present, its cached scroll position is refreshed (`ScrollTrigger.update()`) on every Lenis `scroll` event, so pinned/scrubbed animations stay in sync without any setup on your end.
 

@@ -8,5 +8,4 @@ export interface IGsapTicker {
     prioritize?: boolean
   ): void
   remove(callback: (time: number, deltaTime: number, frame: number) => void): void
-  lagSmoothing(threshold: number): void
 }
