@@ -7,7 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Lenis-powered smooth scrolling for Elementor, shipped two ways from one codebase:
 
 - a standalone WordPress plugin (staged into `dist/` and zipped), and
-- a composer package `arts/smooth-scrolling` (PSR-4 `Arts\SmoothScrolling\` → `src/php/`), consumed via composer symlink by themes (velum-core).
+- a composer package `arts/smooth-scrolling` (PSR-4 `Arts\SmoothScrolling\` → `src/php/`) for a host that wants to bundle it.
+
+Velum does not bundle it: the theme recommends the WordPress.org plugin through TGM, its units keep this package as a type-only `link:` dev dep, and its runtime only reads `window.artsSmoothScrolling.lenis` (velum-core's `CLAUDE.md` lists the plugins it deliberately doesn't boot).
 
 `ARTS_SMOOTH_SCROLLING_PLUGIN_FILE` is defined only by the standalone bootstrap (`src/wordpress-plugin/smooth-scrolling-for-elementor.php`); PHP code checks it to detect which mode it is running in.
 
@@ -42,13 +44,14 @@ Invariants:
 - **PHP/TS parity**: `Options::build()` (PHP, server render path) and `mapKitSettings()` (`src/ts/kitSettings.ts`, editor live-preview path) must derive the identical `TOptions` shape from the same kit controls, including quirks like `is_numeric()` semantics. Changing one means changing the other.
 - **Idempotence**: `gate.ts` and `boot.ts` both guard against re-execution (double `wp_head` themes, AJAX-transition script replays). The gate script tag deliberately carries no `id`. Preserve these properties.
 - **Public contract** is `docs/developers.md`: the discovery global, the two `arts_smooth_scrolling/*` filters, the three `<html>` classes. Elementor control IDs (`arts_smooth_scrolling_*`) are internal and free to change; the contract is not.
+- **Frame clock** (`src/ts/core/rafDriver.ts`): GSAP's ticker is used for ordering only; `lenis.raf()` always gets the document frame clock (`document.timeline.currentTime`, `performance.now()` fallback), never the ticker's Date.now-based `time * 1000`, and the engine never calls `gsap.ticker.lagSmoothing`. The driver starts on its own rAF loop and adopts the ticker on the first frame `window.gsap` appears, because the engine script is async and GSAP is normally deferred. Don't "fix" it back to the Lenis README recipe — that reintroduces millisecond scroll-step jitter and a page-wide GSAP side effect (issue #21).
 - `Plugin`'s constructor checks `did_action('elementor/loaded')` before adding the listener — this plugin sorts alphabetically after "elementor", so the action has already fired by the time it loads.
 
 ## Build system
 
 Custom esbuild/sass pipeline shipped by `@arts/wp-plugin-tooling` (`arts-wp dev|build`), configured by `project.config.js`. There is no `build/` directory in this repo — the scripts live in the tooling package.
 
-- Compiled assets land in `src/php/libraries/smooth-scrolling-for-elementor/` and are **gitignored** — the composer-symlink consumer (velum-core) sees whatever the local dev/build run produced; the release build stages fresh assets into `dist/`. Never hand-edit `gate.js`, `smooth-scrolling-for-elementor.js/.css` there; edit `src/ts` / `src/styles` and rebuild.
+- Compiled assets land in `src/php/libraries/smooth-scrolling-for-elementor/` and are **gitignored** — a composer consumer sees whatever the local dev/build run produced, and the Velum dev site sees the `DEV_TARGET` mirror; the release build stages fresh assets into `dist/`. Never hand-edit `gate.js`, `smooth-scrolling-for-elementor.js/.css` there; edit `src/ts` / `src/styles` and rebuild.
 - `composer.json` `"version"` is the single version source. Runtime code imports its named version through `version.ts`; both builds inline it and source consumers need no version define. The WordPress build also stamps the plugin header, `readme.txt`, `package.json` and the PHP version constant. To release: bump composer.json, build, push a `v*` tag — the release workflow validates the tag against the stamped files and takes the changelog entry from `src/wordpress-plugin/readme.txt`.
 - `project.config.js` edits need a dev-mode restart (Node module cache). `composer.json` is re-read fresh per call, and the watcher that restamps on a version bump only runs when `DEV_TARGET` is set — the running esbuild banner keeps the old value until dev restarts.
 
