@@ -4,7 +4,7 @@ Tags: smooth scroll, scrolling, lenis, momentum scrolling, elementor
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.0.5
+Stable tag: 1.0.6
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0
 GitHub Plugin URI: https://github.com/artkrsk/smooth-scrolling-for-elementor/
@@ -77,7 +77,7 @@ Not certified yet with 1.0.0. The engine is designed to persist across such tran
 
 == Changelog ==
 
-= 1.0.6 =
+= 1.0.6 – November 2, 2026 =
 * fixed: scrolling is now smoother and more even on pages that load GSAP, with no more occasional uneven steps.
 * fixed: the plugin no longer changes how GSAP animations catch up after a slow frame on the rest of your page.
 
