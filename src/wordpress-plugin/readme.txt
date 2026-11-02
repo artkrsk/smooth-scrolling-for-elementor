@@ -77,6 +77,10 @@ Not certified yet with 1.0.0. The engine is designed to persist across such tran
 
 == Changelog ==
 
+= 1.0.6 =
+* fixed: scrolling is now smoother and more even on pages that load GSAP, with no more occasional uneven steps.
+* fixed: the plugin no longer changes how GSAP animations catch up after a slow frame on the rest of your page.
+
 = 1.0.5 – October 21, 2026 =
 * fixed: scrolling over an embed that uses the mouse wheel itself, such as a Google Map zooming with Cmd/Ctrl + scroll or a 3D viewer, no longer scrolls the page underneath.
 
