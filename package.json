@@ -5,7 +5,7 @@
   "type": "module",
   "types": "./dist/types/index.d.ts",
   "description": "Lenis-powered smooth scrolling for Elementor.",
-  "packageManager": "pnpm@12.15.0",
+  "packageManager": "pnpm@12.16.1",
   "engines": {
     "node": ">=24"
   },
@@ -20,13 +20,13 @@
   },
   "devDependencies": {
     "@arts/wp-plugin-tooling": "github:artkrsk/wp-plugin-tooling",
-    "@biomejs/biome": "2.6.3",
+    "@biomejs/biome": "2.6.4",
     "@types/node": "^26.1.1",
     "@vitest/coverage-v8": "^5.0.0",
     "esbuild": "^0.28.1",
-    "fallow": "3.35.0",
+    "fallow": "3.38.1",
     "happy-dom": "20.14.6",
-    "knip": "6.43.0",
+    "knip": "6.44.1",
     "lefthook": "^2.1.10",
     "stylelint": "^17.14.1",
     "typescript": "^7.0.2",
