@@ -12,7 +12,6 @@
  * Requires Plugins: elementor
  * Text Domain: smooth-scrolling-for-elementor
  * Plugin URI: https://artemsemkin.com/plugins/smooth-scrolling-for-elementor/
- * Tested up to: 7.1
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
