@@ -175,7 +175,7 @@ importers:
     devDependencies:
       '@arts/wp-plugin-tooling':
         specifier: github:artkrsk/wp-plugin-tooling
-        version: https://codeload.github.com/artkrsk/wp-plugin-tooling/tar.gz/766185a322d08bfbc408c00da812a575f8d7548d(postcss@8.5.28)(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))
+        version: https://codeload.github.com/artkrsk/wp-plugin-tooling/tar.gz/8900c85cb1e5bcdf9d180a50b4c49d27d009c0ba(postcss@8.5.28)(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))
       '@biomejs/biome':
         specifier: 2.6.4
         version: 2.6.4
@@ -192,8 +192,8 @@ importers:
         specifier: 3.38.1
         version: 3.38.1
       happy-dom:
-        specifier: 20.14.6
-        version: 20.14.6
+        specifier: 21.0.4
+        version: 21.0.4
       knip:
         specifier: 6.44.1
         version: 6.44.1
@@ -211,7 +211,7 @@ importers:
         version: 7.0.2
       vitest:
         specifier: 5.0.5
-        version: 5.0.5(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(happy-dom@20.14.6)(vite@8.1.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(yaml@2.9.1))
+        version: 5.0.5(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.4)(vite@8.1.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(yaml@2.9.1))
 
 packages:
 
@@ -220,8 +220,8 @@ packages:
     peerDependencies:
       swiper: '>=12.0.0'
 
-  '@arts/wp-plugin-tooling@https://codeload.github.com/artkrsk/wp-plugin-tooling/tar.gz/766185a322d08bfbc408c00da812a575f8d7548d':
-    resolution: {gitHosted: true, integrity: sha512-V3cLtGlOROoFVZv1U02AQD+v9ZhWQ2qOmrMiNWPfDv/HhKm1RtRf173d3Ev0Ej5by6uwk+5OvBlOYxq0678cFw==, tarball: https://codeload.github.com/artkrsk/wp-plugin-tooling/tar.gz/766185a322d08bfbc408c00da812a575f8d7548d}
+  '@arts/wp-plugin-tooling@https://codeload.github.com/artkrsk/wp-plugin-tooling/tar.gz/8900c85cb1e5bcdf9d180a50b4c49d27d009c0ba':
+    resolution: {gitHosted: true, integrity: sha512-7Ce7nIZqrUY9MCRsQCxy1cXKNeTH1wWfNV07u7febEjZfTKYikY18a+8Ccdtm/YOK3a6nRySG818axjlBscp/Q==, tarball: https://codeload.github.com/artkrsk/wp-plugin-tooling/tar.gz/8900c85cb1e5bcdf9d180a50b4c49d27d009c0ba}
     version: 1.0.0
     engines: {node: '>=24'}
     hasBin: true
@@ -1543,8 +1543,8 @@ packages:
   globjoin@0.1.4:
     resolution: {integrity: sha512-xYfnw62CKG8nLkZBfWbhWwDw02CHty86jfPcc2cr3ZfeuK9ysoVPPEUxf21bAD/rWAgk52SuBrLJlefNy8mvFg==}
 
-  happy-dom@20.14.6:
-    resolution: {integrity: sha512-5DDsf4QmEIlRL6NkCv/fxSjYHHkZceL/IaYQdJc2h3G7DRTEai++VTjbfL0LB9geW2VrA3+vrjF3Efx+OTtX0Q==}
+  happy-dom@21.0.4:
+    resolution: {integrity: sha512-tFm+GaLBgo6o0awHnvHaNoraVo27qJ+2tZEtZ+cIa08hXbeitrxAJajLI05hsUy/2/YTKcUjQYzHe5mCcraLBw==}
     engines: {node: '>=20.0.0'}
 
   has-flag@5.0.1:
@@ -2291,7 +2291,7 @@ snapshots:
       '@types/select2': 4.0.63
       swiper: 14.2.0
 
-  '@arts/wp-plugin-tooling@https://codeload.github.com/artkrsk/wp-plugin-tooling/tar.gz/766185a322d08bfbc408c00da812a575f8d7548d(postcss@8.5.28)(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))':
+  '@arts/wp-plugin-tooling@https://codeload.github.com/artkrsk/wp-plugin-tooling/tar.gz/8900c85cb1e5bcdf9d180a50b4c49d27d009c0ba(postcss@8.5.28)(stylelint@17.16.0(supports-color@10.2.2)(typescript@7.0.2))':
     dependencies:
       archiver: 8.0.0
       chokidar: 5.0.0
@@ -2924,7 +2924,7 @@ snapshots:
       obug: 3.0.0
       std-env: 4.3.0
       tinyrainbow: 3.2.0
-      vitest: 5.0.5(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(happy-dom@20.14.6)(vite@8.1.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(yaml@2.9.1))
+      vitest: 5.0.5(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.4)(vite@8.1.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(yaml@2.9.1))
 
   '@vitest/istanbul-lib-coverage@1.0.2': {}
 
@@ -3275,7 +3275,7 @@ snapshots:
 
   globjoin@0.1.4: {}
 
-  happy-dom@20.14.6:
+  happy-dom@21.0.4:
     dependencies:
       '@types/node': 26.6.6
       '@types/whatwg-mimetype': 3.0.2
@@ -3931,7 +3931,7 @@ snapshots:
       sass: 1.107.1
       yaml: 2.9.1
 
-  vitest@5.0.5(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(happy-dom@20.14.6)(vite@8.1.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(yaml@2.9.1)):
+  vitest@5.0.5(@types/node@26.6.6)(@vitest/coverage-v8@5.0.5)(happy-dom@21.0.4)(vite@8.1.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(yaml@2.9.1)):
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/mocker': 5.0.5(vite@8.1.5(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(sass@1.107.1)(yaml@2.9.1))
@@ -3950,7 +3950,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 26.6.6
       '@vitest/coverage-v8': 5.0.5(vitest@5.0.5)
-      happy-dom: 20.14.6
+      happy-dom: 21.0.4
     transitivePeerDependencies:
       - msw
 
