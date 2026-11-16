@@ -77,6 +77,9 @@ Not certified yet with 1.0.0. The engine is designed to persist across such tran
 
 == Changelog ==
 
+= 1.0.7 =
+* added: smooth scrolling now turns off for visitors whose system asks for reduced motion, and follows that setting when it changes, without a reload. Developers can switch this off with the arts/reduced_motion/enabled filter.
+
 = 1.0.6 – November 2, 2026 =
 * fixed: scrolling is now smoother and more even on pages that load GSAP, with no more occasional uneven steps.
 * fixed: the plugin no longer changes how GSAP animations catch up after a slow frame on the rest of your page.
