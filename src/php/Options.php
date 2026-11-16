@@ -19,18 +19,22 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Options {
 
-	private const EASINGS               = array( 'expo.out', 'linear' );
-	private const DEFAULT_DURATION      = 1.2;
-	private const DEFAULT_EASING        = 'expo.out';
-	private const DISABLE_TOUCH_DEFAULT = '(hover: hover) and (pointer: fine)';
+	private const EASINGS                  = array( 'expo.out', 'linear' );
+	private const DEFAULT_DURATION         = 1.2;
+	private const DEFAULT_EASING           = 'expo.out';
+	private const DISABLE_TOUCH_DEFAULT    = '(hover: hover) and (pointer: fine)';
+	private const REDUCED_MOTION_CONDITION = '(prefers-reduced-motion: no-preference)';
 
 	/** @return array<string, mixed> */
 	public static function build(): array {
 		$duration = self::size_of( 'arts_smooth_scrolling_duration', self::DEFAULT_DURATION );
 		$easing   = self::easing_of( 'arts_smooth_scrolling_easing', self::DEFAULT_EASING );
+		// A filter shared across Arts plugins and themes, so one callback forces full motion everywhere.
+		$reduced_motion = (bool) apply_filters( 'arts/reduced_motion/enabled', true );
 
 		$options = array(
-			'matchMedia'     => self::match_media(),
+			'matchMedia'     => self::match_media( $reduced_motion ),
+			'reducedMotion'  => $reduced_motion,
 			// No control for this one — always on, filterable below like every other key.
 			'prefersGSAPRaf' => true,
 			'lenisOptions'   => array(
@@ -55,13 +59,32 @@ class Options {
 		return apply_filters( 'arts_smooth_scrolling/options', $options );
 	}
 
-	/** Raw disable_touch control value: the media query string, or '' once switched off. */
-	private static function match_media(): string {
+	/**
+	 * Raw disable_touch control value: the media query string, or '' once switched off.
+	 * While reduced motion is honoured, every branch of the query also requires the
+	 * visitor's system to ask for full motion, so the gate never loads the engine for
+	 * a reduced-motion visitor and the controller follows the setting live.
+	 */
+	private static function match_media( bool $reduced_motion ): string {
 		$value = self::kit_value( 'arts_smooth_scrolling_disable_touch' );
 		if ( null === $value ) {
-			return self::DISABLE_TOUCH_DEFAULT;
+			$query = self::DISABLE_TOUCH_DEFAULT;
+		} else {
+			$query = is_string( $value ) ? $value : '';
 		}
-		return is_string( $value ) ? $value : '';
+		if ( ! $reduced_motion ) {
+			return $query;
+		}
+		if ( '' === trim( $query ) ) {
+			return self::REDUCED_MOTION_CONDITION;
+		}
+		return implode(
+			', ',
+			array_map(
+				static fn( string $branch ): string => trim( $branch ) . ' and ' . self::REDUCED_MOTION_CONDITION,
+				explode( ',', $query )
+			)
+		);
 	}
 
 	private static function easing_of( string $key, string $default ): string {

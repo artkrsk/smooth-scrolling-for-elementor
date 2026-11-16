@@ -3,6 +3,7 @@ import type { TKitSettings, TOptions } from './types'
 const DEFAULT_DURATION = 1.2
 const DEFAULT_EASING = 'expo.out'
 const DEFAULT_DISABLE_TOUCH = '(hover: hover) and (pointer: fine)'
+const REDUCED_MOTION_CONDITION = '(prefers-reduced-motion: no-preference)'
 
 /** Mirrors PHP Options::match_media() — an absent key falls back to the
     default query; a present value (including '') maps as-is. */
@@ -11,6 +12,18 @@ const matchMediaOf = (value: unknown): string => {
     return DEFAULT_DISABLE_TOUCH
   }
   return typeof value === 'string' ? value : ''
+}
+
+/** Mirrors PHP Options::match_media()'s composition — every branch of the query also requires
+    full motion; an empty query becomes the condition alone. */
+const withReducedMotion = (query: string): string => {
+  if (query.trim() === '') {
+    return REDUCED_MOTION_CONDITION
+  }
+  return query
+    .split(',')
+    .map((branch) => `${branch.trim()} and ${REDUCED_MOTION_CONDITION}`)
+    .join(', ')
 }
 
 /** Mirrors PHP `is_numeric()` as Options::build() uses it — a blank string is
@@ -43,14 +56,17 @@ const stringOf = (value: unknown, fallback: string): string =>
  * forwarded by the PHP-printed editor bridge) -> TOptions. Re-derives the
  * anchors block from scratch on every call so the live preview never serves
  * a stale anchors config — the gap v1 had with its shallow Object.assign.
+ * `reducedMotion` is the verdict PHP printed: the editor never sees the
+ * `arts/reduced_motion/enabled` filter itself.
  */
-export function mapKitSettings(settings: TKitSettings): TOptions {
+export function mapKitSettings(settings: TKitSettings, reducedMotion = true): TOptions {
   const duration = sizeOf(settings.arts_smooth_scrolling_duration, DEFAULT_DURATION)
   const easing = stringOf(settings.arts_smooth_scrolling_easing, DEFAULT_EASING)
-  const disableTouch = settings.arts_smooth_scrolling_disable_touch
+  const query = matchMediaOf(settings.arts_smooth_scrolling_disable_touch)
 
   return {
-    matchMedia: matchMediaOf(disableTouch),
+    matchMedia: reducedMotion ? withReducedMotion(query) : query,
+    reducedMotion,
     prefersGSAPRaf: true,
     lenisOptions: {
       duration,

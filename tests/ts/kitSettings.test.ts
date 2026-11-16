@@ -12,15 +12,21 @@ import { describe, expect, it } from 'vitest'
 describe('disable-touch return_value trick', () => {
   it('uses the raw string value as the matchMedia query', () => {
     const query = '(hover: hover) and (pointer: fine)'
-    expect(mapKitSettings({ arts_smooth_scrolling_disable_touch: query }).matchMedia).toBe(query)
+    expect(mapKitSettings({ arts_smooth_scrolling_disable_touch: query }).matchMedia).toBe(
+      `${query} and (prefers-reduced-motion: no-preference)`
+    )
   })
 
   it('falls back to empty (always on) when present but off', () => {
-    expect(mapKitSettings({ arts_smooth_scrolling_disable_touch: '' }).matchMedia).toBe('')
+    expect(mapKitSettings({ arts_smooth_scrolling_disable_touch: '' }).matchMedia).toBe(
+      '(prefers-reduced-motion: no-preference)'
+    )
   })
 
   it('defaults to the hover/pointer query when the key was never saved — matches Options::match_media()', () => {
-    expect(mapKitSettings({}).matchMedia).toBe('(hover: hover) and (pointer: fine)')
+    expect(mapKitSettings({}).matchMedia).toBe(
+      '(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)'
+    )
   })
 })
 

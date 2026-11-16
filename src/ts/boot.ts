@@ -19,7 +19,8 @@ if (!signal?.aborted && (!existing || '__resolveReady' in existing)) {
   const releaseAnchors = suppressElementorAnchors()
   const onKitChange = (event: WindowEventMap['arts-smooth-scrolling:kit-change']) => {
     if (event.detail?.settings) {
-      app.get()?.reinit(mapKitSettings(event.detail.settings))
+      const reducedMotion = window.artsSmoothScrollingOptions?.reducedMotion
+      app.get()?.reinit(mapKitSettings(event.detail.settings, reducedMotion))
     }
   }
   window.addEventListener('arts-smooth-scrolling:kit-change', onKitChange)

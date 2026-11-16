@@ -6,6 +6,10 @@ import type { TLenisOptions } from './TLenisOptions'
 export type TOptions = {
   /** '' = always on. */
   matchMedia: string
+  /** Honour the visitor's reduced-motion setting: `matchMedia` then also requires full motion,
+      so smoothing stops while the system asks for less. False forces full motion; absent
+      means honoured. */
+  reducedMotion?: boolean
   prefersGSAPRaf: boolean
   lenisOptions: TLenisOptions
 }

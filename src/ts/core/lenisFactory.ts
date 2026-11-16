@@ -35,6 +35,9 @@ export function createLenis(options: TOptions): Lenis {
     duration,
     ...(easingFn ? { easing: easingFn } : {}),
     // anchors.ts owns anchor clicks — Lenis's own listener ignores defaultPrevented
-    anchors: false
+    anchors: false,
+    // Lenis's own default honours reduced motion (wheel unsmoothed, scrollTo immediate); a site
+    // that forces full motion turns it off along with the matchMedia condition
+    respectReducedMotion: options.reducedMotion !== false
   })
 }

@@ -1,6 +1,6 @@
 # Developer Reference
 
-The public integration contract for themes, plugins and anyone driving the scroll programmatically. It is deliberately small — one discovery global, two PHP filters, and a handful of CSS classes. The plugin's Elementor control machinery (the Site Settings tab) is internal and may change freely; integrate against what's on this page, not against control IDs.
+The public integration contract for themes, plugins and anyone driving the scroll programmatically. It is deliberately small — one discovery global, three PHP filters, and a handful of CSS classes. The plugin's Elementor control machinery (the Site Settings tab) is internal and may change freely; integrate against what's on this page, not against control IDs.
 
 ## Discovery
 
@@ -50,7 +50,8 @@ You drive the instance you get back yourself, with `autoRaf: true` or your own t
 ```php
 add_filter( 'arts_smooth_scrolling/options', function ( $options ) {
 	// $options = [
-	//   'matchMedia'     => '(hover: hover) and (pointer: fine)', // '' = always on
+	//   'matchMedia'     => '(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)', // '' = always on
+	//   'reducedMotion'  => true,
 	//   'prefersGSAPRaf' => true,
 	//   'lenisOptions'   => [
 	//     'duration' => 1.2,
@@ -72,6 +73,14 @@ add_filter( 'arts_smooth_scrolling/enabled', fn( $on ) => $on && ! is_checkout()
 ```
 
 Evaluated once per request, before output. A disabled request prints no gate and no globals, and `<html>` still gets `no-smooth-scroll` (via `language_attributes`), so the class contract stays total — to your CSS, a filtered request is a touch device. The Elementor editor preview ignores the filter and always runs, so a live edit in Site Settings has something to react to.
+
+`arts/reduced_motion/enabled` (default `true`) decides whether a visitor whose system asks for reduced motion gets native scrolling. While it is on, every comma-separated branch of the `matchMedia` query gets ` and (prefers-reduced-motion: no-preference)` appended (an empty query becomes that condition alone), so the engine is never downloaded for such a visitor, and smoothing stops and starts with the system setting, without a reload. Returning `false` prints the bare query and also turns off Lenis's own reduced-motion handling, so smoothing stays on for everyone:
+
+```php
+add_filter( 'arts/reduced_motion/enabled', '__return_false' );
+```
+
+The filter name is shared with other Arts plugins and themes, so one callback forces full motion across all of them. It runs before `arts_smooth_scrolling/options`, and the payload carries the verdict as `reducedMotion`; a `matchMedia` you set in that filter replaces the composed query.
 
 ## Runtime API
 
