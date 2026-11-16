@@ -4,7 +4,7 @@ Tags: smooth scroll, scrolling, lenis, momentum scrolling, elementor
 Requires at least: 6.2
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 1.0.6
+Stable tag: 1.0.7
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0
 GitHub Plugin URI: https://github.com/artkrsk/smooth-scrolling-for-elementor/
@@ -77,7 +77,7 @@ Not certified yet with 1.0.0. The engine is designed to persist across such tran
 
 == Changelog ==
 
-= 1.0.7 =
+= 1.0.7 – November 16, 2026 =
 * added: smooth scrolling now turns off for visitors whose system asks for reduced motion, and follows that setting when it changes, without a reload. Developers can switch this off with the arts/reduced_motion/enabled filter.
 
 = 1.0.6 – November 2, 2026 =
