@@ -2,9 +2,9 @@
 Contributors: artemsemkin
 Tags: smooth scroll, scrolling, lenis, momentum scrolling, elementor
 Requires at least: 6.2
-Tested up to: 7.1
+Tested up to: 7.2
 Requires PHP: 8.0
-Stable tag: 1.0.7
+Stable tag: 1.0.8
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0
 GitHub Plugin URI: https://github.com/artkrsk/smooth-scrolling-for-elementor/
@@ -77,7 +77,7 @@ Not certified yet with 1.0.0. The engine is designed to persist across such tran
 
 == Changelog ==
 
-= 1.0.8 =
+= 1.0.8 – November 21, 2026 =
 * improved: confirmed compatibility with WordPress 7.2.
 * fixed: anchor links whose target contains a stray percent sign, such as #100%, now scroll smoothly instead of jumping.
 
