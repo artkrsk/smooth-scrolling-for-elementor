@@ -22,17 +22,24 @@ const findAnchor = (event: MouseEvent): HTMLAnchorElement | undefined =>
     .composedPath()
     .find((node): node is HTMLAnchorElement => node instanceof HTMLAnchorElement && !!node.href)
 
+/** Percent-decodes as the browser's fragment lookup does: a malformed escape
+    (`#100%`, a CSS ID with a stray `%`) stays as written instead of throwing. */
+const decodeHash = (hash: string): string =>
+  hash.replace(/(?:%[0-9A-Fa-f]{2})+/g, (run) => {
+    try {
+      return decodeURIComponent(run)
+    } catch {
+      return run
+    }
+  })
+
 // getElementById, not querySelector: an Elementor CSS ID is only trimmed, so
 // "#123" or "#a.b" are valid targets but invalid selectors.
 const resolveHashTarget = (hash: string): HTMLElement | null => {
   if (hash.length < 2) {
     return null
   }
-  try {
-    return document.getElementById(decodeURIComponent(hash.slice(1)))
-  } catch {
-    return null
-  }
+  return document.getElementById(decodeHash(hash.slice(1)))
 }
 
 /**
@@ -120,7 +127,7 @@ export function createAnchors(lenis: Lenis, anchorsOptions: ScrollToOptions): ()
       return
     }
     if (url.hash) {
-      lenis.scrollTo(decodeURIComponent(url.hash), anchorsOptions)
+      lenis.scrollTo(decodeHash(url.hash), anchorsOptions)
     }
   }
 
