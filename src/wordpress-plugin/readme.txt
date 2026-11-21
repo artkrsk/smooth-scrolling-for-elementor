@@ -68,7 +68,9 @@ Deactivate the plugin, or for conditional control use the `arts_smooth_scrolling
 
 = Does it work with AJAX page-transition plugins (Barba.js-based themes, etc.)? =
 
-Not certified yet with 1.0.0. The engine is designed to persist across such transitions rather than re-initialize on every page swap, but this hasn't been tested against specific transitions plugins. If you run into issues, please report them.
+The engine stays alive across a page swap: it lives on the window, and a theme that re-runs its scripts after a transition doesn't start a second copy. What the plugin doesn't do is know about your transition library. It won't pause scrolling while a transition plays, return to the top when the new page lands, or re-measure the page afterwards. Those belong to the theme, and the plugin gives it the controls: `window.artsSmoothScrolling.get()?.lenis` exposes `stop()`, `start()`, `scrollTo()` and `resize()`.
+
+With Barba.js or any other transition library, a theme or a snippet has to do it. The [developer reference](https://github.com/artkrsk/smooth-scrolling-for-elementor/blob/main/docs/developers.md) lists the exact calls and the pitfalls, such as the Lenis instance being replaced during a visit. I haven't tested the plugin against specific third-party transition libraries, so if one misbehaves, please report it.
 
 == Screenshots ==
 

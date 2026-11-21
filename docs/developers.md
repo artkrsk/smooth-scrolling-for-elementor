@@ -106,6 +106,45 @@ controller.lenis?.on('scroll', ({ scroll, progress }) => {
 })
 ```
 
+## Integrating with a theme
+
+A theme that locks the page (a preloader, a modal) or swaps pages over AJAX has to drive Lenis itself. Four things to know first.
+
+**Read the instance on every call.** `lenis` is `null` until the engine has booted, never boots on a touch device with the default setting, and is replaced by a new instance whenever the `matchMedia` query flips or the controller is torn down and started again. A reference you kept from an earlier call may be destroyed. Go through `window.artsSmoothScrolling?.get()?.lenis` each time, and treat `null` as "nothing to do".
+
+**Pausing scrolling.** The plugin doesn't pass Lenis `autoToggle`, so Lenis never looks at `overflow` after it is created: hiding `<html>` overflow for a preloader or a modal lock doesn't stop it. Stop and start it yourself:
+
+```js
+window.artsSmoothScrolling?.get()?.lenis?.stop()
+// ... later
+window.artsSmoothScrolling?.get()?.lenis?.start()
+```
+
+A new instance starts running, so if the engine can boot while your lock is held, re-apply the stop once it does:
+
+```js
+window.artsSmoothScrolling?.ready.then((controller) => {
+  if (isLocked) {
+    controller.lenis?.stop()
+  }
+})
+```
+
+That covers a late boot. A `matchMedia` flip during the lock creates another instance, so a long lock that has to survive it should check again on the way out.
+
+**AJAX transitions.** Stop Lenis when the visit starts. When the new page is in place, put the scroll position back with `scrollTo(0, { immediate: true, force: true })`, then `start()`, then `resize()`:
+
+```js
+const lenis = window.artsSmoothScrolling?.get()?.lenis
+lenis?.scrollTo(0, { immediate: true, force: true })
+lenis?.start()
+lenis?.resize()
+```
+
+`scrollTo` returns without doing anything while Lenis is stopped unless it gets `force: true`. `resize()` re-measures the page, because Lenis clamps every scroll to the range it measured last, and the new page is a different height. `start()` after `stop()` resumes from wherever the window is; `stop()` doesn't move it. If a visit is aborted, `start()` again. ArtsAJAXNavigator's smooth scrolling plugin follows the same shape (`stop()` at the visit's start, `start()` then `resize()` once the page is interactive), but the navigator writes the landing scroll position itself instead of going through Lenis.
+
+**Teardown.** `window.artsSmoothScrolling.destroy()` disposes the plugin for the rest of the page visit: it destroys the controller and removes the global, and nothing brings it back. The per-page pair is the controller's own `get()?.destroy()` and `get()?.init()`; `init()` after `destroy()` builds a fresh Lenis, so anything you attached to the old `lenis` (an `on('scroll')` listener, for one) has to be attached again.
+
 ## CSS
 
 Exactly one of `has-smooth-scroll` / `no-smooth-scroll` is always present on `<html>`: set pre-paint from the `matchMedia` prediction, corrected by the engine if reality differs, flipped to `no-` on asset failure, and printed server-side when the request is disabled via the PHP filter. `has-smooth-anchors` is added once the engine is running, alongside `has-smooth-scroll` — anchors have no independent toggle in this plugin. Key any fallback styling off these three classes; a touch device, a filtered request and a broken deploy all land in the same, handled state.
