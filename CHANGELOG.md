@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.8 – November 21, 2026
+
+* improved: confirmed compatibility with WordPress 7.2.
+* fixed: anchor links whose target contains a stray percent sign, such as #100%, now scroll smoothly instead of jumping.
+
 ## 1.0.7 – November 16, 2026
 
 * added: smooth scrolling now turns off for visitors whose system asks for reduced motion, and follows that setting when it changes, without a reload. Developers can switch this off with the arts/reduced_motion/enabled filter.
