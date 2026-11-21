@@ -6,7 +6,8 @@ import { createFakeLenis } from '../support'
 
 /**
  * Same-page content hashes go to `scrollTo` decoded, as Lenis's native
- * handler did. The empty-hash forms: bare `#` always scrolls to top; `/#` and
+ * handler did, with a malformed escape kept as written, as the browser's
+ * fragment lookup keeps it. The empty-hash forms: bare `#` always scrolls to top; `/#` and
  * `./#` do so only when they resolve to the current page — otherwise the
  * browser is left to navigate natively. A click some other script already
  * prevented is never touched.
@@ -99,6 +100,24 @@ describe('same-page content hashes', () => {
     expect(lenis.scrollTo).toHaveBeenNthCalledWith(2, '#top', anchorsOptions)
   })
 
+  // decodeURIComponent throws on all of these; the browser resolves #100% to
+  // id="100%" and #café-100% to id="café-100%"
+  it.each([
+    ['#100%', '#100%'],
+    ['#%', '#%'],
+    ['#caf%C3%A9-100%', '#café-100%'],
+    ['#%E0%A4%A', '#%E0%A4%A']
+  ])('keeps a malformed escape as written instead of throwing (%s)', (href, expected) => {
+    remove = createAnchors(lenis as never, anchorsOptions)
+    const a = document.createElement('a')
+    a.setAttribute('href', href)
+    document.body.appendChild(a)
+
+    click(a)
+
+    expect(lenis.scrollTo).toHaveBeenCalledExactlyOnceWith(expected, anchorsOptions)
+  })
+
   it('matches an absolute URL pointing at the current page', () => {
     remove = createAnchors(lenis as never, anchorsOptions)
     const a = document.createElement('a')
@@ -144,9 +163,9 @@ describe('links into Arts Horizontal Scroll panels', () => {
   }
 
   /** A panel target HS places at scrollY 1234, and a link to it. */
-  const panelLink = (href = '#panel') => {
+  const panelLink = (href = '#panel', id = 'panel') => {
     const panel = document.createElement('div')
-    panel.id = 'panel'
+    panel.id = id
     const a = document.createElement('a')
     a.setAttribute('href', href)
     document.body.append(panel, a)
@@ -186,6 +205,16 @@ describe('links into Arts Horizontal Scroll panels', () => {
     cancelableClick(a)
 
     expect(lenis.scrollTo).toHaveBeenCalledExactlyOnceWith(1234, anchorsOptions)
+  })
+
+  it('lands a panel whose ID has a malformed escape', () => {
+    remove = createAnchors(lenis as never, anchorsOptions)
+    const a = panelLink('#100%', '100%')
+
+    const event = cancelableClick(a)
+
+    expect(lenis.scrollTo).toHaveBeenCalledExactlyOnceWith(1234, anchorsOptions)
+    expect(event.defaultPrevented).toBe(true)
   })
 
   it('takes it before a document capture listener sees it', () => {
