@@ -19,6 +19,10 @@ It works the moment you activate it — there's nothing to switch on. Tune the d
 
 Scrolling is powered by Lenis (MIT) by darkroom.engineering, compiled into the plugin's own bundle.
 
+= ✅ Used in Velum theme =
+
+Velum, my portfolio theme for architects and studios, scrolls with this plugin. [Velum's page](https://artemsemkin.com/themes/velum/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=smooth-scrolling-for-elementor) has a live demo to try it.
+
 = What it does =
 
 * **Momentum scrolling.** The page scrolls through Lenis instead of the browser's native scroll, with a duration and easing curve set from Site Settings.
