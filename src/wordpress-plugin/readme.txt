@@ -19,9 +19,9 @@ It works the moment you activate it — there's nothing to switch on. Tune the d
 
 Scrolling is powered by Lenis (MIT) by darkroom.engineering, compiled into the plugin's own bundle.
 
-= ✅ Used in Velum theme =
+= ✅ Used in Velum and Trigger themes =
 
-Velum, my portfolio theme for architects and studios, scrolls with this plugin. [Velum's page](https://artemsemkin.com/themes/velum/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=smooth-scrolling-for-elementor) has a live demo to try it.
+Velum, my portfolio theme for architects and studios, scrolls with this plugin. Trigger, my AJAX portfolio theme, installs it during setup and scrolls with it too. [Velum's page](https://artemsemkin.com/themes/velum/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=smooth-scrolling-for-elementor) and [Trigger's page](https://artemsemkin.com/themes/trigger/?utm_source=wordpress.org&utm_medium=referral&utm_campaign=smooth-scrolling-for-elementor) have live demos to try it.
 
 = What it does =
 
