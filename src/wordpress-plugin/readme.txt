@@ -83,6 +83,9 @@ With Barba.js or any other transition library, a theme or a snippet has to do it
 
 == Changelog ==
 
+= 1.0.9 =
+* added: developers using the library outside WordPress can now pass partial or no options and get the same defaults as the plugin.
+
 = 1.0.8 – November 21, 2026 =
 * improved: confirmed compatibility with WordPress 7.2.
 * fixed: anchor links whose target contains a stray percent sign, such as #100%, now scroll smoothly instead of jumping.
