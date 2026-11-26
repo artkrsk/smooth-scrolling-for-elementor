@@ -18,7 +18,7 @@ export function createSmoothScrollingApp(args: ISmoothScrollingAppArgs = {}): IS
   let resolveGate: ((controller: ISmoothScrolling) => void) | undefined
   let releaseGate: (() => void) | undefined
   const boot = () => {
-    if (disposed || !args.options) {
+    if (disposed) {
       return
     }
     controller = createSmoothScrolling(args.options)

@@ -1,4 +1,5 @@
 import type Lenis from 'lenis'
+import { defaultMatchMedia } from './core/options'
 import type { IGateGlobal } from './interfaces/IGateGlobal'
 import type { ISmoothScrolling } from './interfaces/ISmoothScrolling'
 import type { ISmoothScrollingGate } from './interfaces/ISmoothScrollingGate'
@@ -148,7 +149,7 @@ export function createSmoothScrollingGate(
         predict(false)
         return
       }
-      const query = args.options.matchMedia
+      const query = args.options.matchMedia ?? defaultMatchMedia(args.options.reducedMotion)
       media = query ? window.matchMedia(query) : undefined
       const matches = media?.matches ?? true
       predict(matches)

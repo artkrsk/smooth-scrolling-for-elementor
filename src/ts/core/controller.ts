@@ -1,9 +1,10 @@
 import type Lenis from 'lenis'
 import type { IRafDriver, ISmoothScrolling } from '../interfaces'
-import type { TOptions } from '../types'
+import type { TPartialOptions } from '../types'
 import { createAnchors } from './anchors'
 import { applyDomState } from './domState'
 import { createLenis, resolveAnchorsOptions } from './lenisFactory'
+import { resolveOptions } from './options'
 import { createRafDriver } from './rafDriver'
 import { syncScrollTrigger } from './scrollTriggerSync'
 
@@ -14,8 +15,8 @@ import { syncScrollTrigger } from './scrollTriggerSync'
  * `destroy()` while already initialized/torn down are no-ops rather than
  * queued (no v1 async queue).
  */
-export function createSmoothScrolling(options: TOptions): ISmoothScrolling {
-  let currentOptions = options
+export function createSmoothScrolling(options: TPartialOptions = {}): ISmoothScrolling {
+  let currentOptions = resolveOptions(options)
   let lifecycle: AbortController | null = null
   let lenis: Lenis | null = null
   let driver: IRafDriver | null = null
@@ -85,7 +86,7 @@ export function createSmoothScrolling(options: TOptions): ISmoothScrolling {
 
     reinit(nextOptions) {
       api.destroy()
-      currentOptions = nextOptions
+      currentOptions = resolveOptions(nextOptions)
       api.init()
     },
 

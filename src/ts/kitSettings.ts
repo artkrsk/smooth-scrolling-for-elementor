@@ -1,9 +1,11 @@
+import {
+  DEFAULT_DISABLE_TOUCH,
+  DEFAULT_DURATION,
+  DEFAULT_EASING,
+  resolveOptions,
+  withReducedMotion
+} from './core/options'
 import type { TKitSettings, TOptions } from './types'
-
-const DEFAULT_DURATION = 1.2
-const DEFAULT_EASING = 'expo.out'
-const DEFAULT_DISABLE_TOUCH = '(hover: hover) and (pointer: fine)'
-const REDUCED_MOTION_CONDITION = '(prefers-reduced-motion: no-preference)'
 
 /** Mirrors PHP Options::match_media() — an absent key falls back to the
     default query; a present value (including '') maps as-is. */
@@ -12,18 +14,6 @@ const matchMediaOf = (value: unknown): string => {
     return DEFAULT_DISABLE_TOUCH
   }
   return typeof value === 'string' ? value : ''
-}
-
-/** Mirrors PHP Options::match_media()'s composition — every branch of the query also requires
-    full motion; an empty query becomes the condition alone. */
-const withReducedMotion = (query: string): string => {
-  if (query.trim() === '') {
-    return REDUCED_MOTION_CONDITION
-  }
-  return query
-    .split(',')
-    .map((branch) => `${branch.trim()} and ${REDUCED_MOTION_CONDITION}`)
-    .join(', ')
 }
 
 /** Mirrors PHP `is_numeric()` as Options::build() uses it — a blank string is
@@ -64,21 +54,9 @@ export function mapKitSettings(settings: TKitSettings, reducedMotion = true): TO
   const easing = stringOf(settings.arts_smooth_scrolling_easing, DEFAULT_EASING)
   const query = matchMediaOf(settings.arts_smooth_scrolling_disable_touch)
 
-  return {
+  return resolveOptions({
     matchMedia: reducedMotion ? withReducedMotion(query) : query,
     reducedMotion,
-    prefersGSAPRaf: true,
-    lenisOptions: {
-      duration,
-      easing,
-      anchors: {
-        offset: 0,
-        immediate: false,
-        lock: false,
-        force: true,
-        easing: easing === 'expo.out' ? 'expo.inOut' : easing,
-        duration: duration * 0.8
-      }
-    }
-  }
+    lenisOptions: { duration, easing }
+  })
 }

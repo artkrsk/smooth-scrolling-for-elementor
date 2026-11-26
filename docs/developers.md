@@ -90,7 +90,7 @@ The filter name is shared with other Arts plugins and themes, so one callback fo
 interface ISmoothScrolling {
   init(): void
   destroy(): void
-  reinit(options: TOptions): void
+  reinit(options: TPartialOptions): void
   readonly lenis: Lenis | null
 }
 ```
@@ -199,19 +199,21 @@ import { createSmoothScrollingApp } from '@arts/smooth-scrolling'
 import '@arts/smooth-scrolling/styles.css'
 
 const app = createSmoothScrollingApp({
-  options: { matchMedia: '(hover: hover)', prefersGSAPRaf: true, lenisOptions: {} }
+  options: { matchMedia: '(hover: hover)' }
 })
 app.init()
 // Dispose the owner at application teardown.
 app.destroy()
 ```
 
+`options` is optional, and so is every key in it, at every depth (`TPartialOptions`). Whatever you leave out takes the value WordPress prints for an untouched Site Settings: the touch and reduced-motion `matchMedia` query, duration `1.2`, easing `expo.out`, `prefersGSAPRaf: true`, and an `anchors` block derived from the duration and easing (`0.8` times the duration, with `expo.out` swapped for `expo.inOut`). Keys you do pass win, an empty `matchMedia` (always on) included. `createSmoothScrolling()` and `controller.reinit()` take the same partial shape.
+
 For deferred loading, use the engine-free gate and a stylesheet URL supplied by the host bundler:
 
 ```ts
 import { createSmoothScrollingGate } from '@arts/smooth-scrolling/gate'
 
-const options = { matchMedia: '(hover: hover)', prefersGSAPRaf: true, lenisOptions: {} }
+const options = { matchMedia: '(hover: hover)' }
 const gate = createSmoothScrollingGate({
   options,
   css: '/assets/smooth-scrolling.css',

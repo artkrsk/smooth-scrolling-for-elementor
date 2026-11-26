@@ -1,7 +1,7 @@
-import type { TOptions } from '../types/TOptions'
+import type { TPartialOptions } from '../types/TPartialOptions'
 
 export interface ISmoothScrollingGateArgs {
-  options?: TOptions
+  options?: TPartialOptions
   css?: string
   /** Classic WordPress bootstrap URL; use load for an ESM bootstrap. */
   js?: string
