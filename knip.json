@@ -3,5 +3,6 @@
   "entry": ["src/ts/boot.ts", "src/ts/gate.ts", "project.config.js"],
   "project": ["src/ts/**/*.ts", "tests/**/*.ts"],
   "ignoreExportsUsedInFile": true,
-  "ignoreDependencies": ["fallow"]
+  "ignoreDependencies": ["fallow"],
+  "ignoreBinaries": ["php"]
 }

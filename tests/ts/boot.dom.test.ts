@@ -123,12 +123,11 @@ describe('boot timing', () => {
   })
 })
 
-describe('missing options — no-op boot', () => {
-  it('installs the global but never creates a controller', async () => {
+describe('missing options — boots with the defaults', () => {
+  it('installs the global and creates a controller', async () => {
     await loadBoot()
 
-    expect(window.artsSmoothScrolling?.get()).toBeNull()
-    expect(window.artsSmoothScrolling?.lenis).toBeNull()
+    expect(window.artsSmoothScrolling?.get()).not.toBeNull()
   })
 })
 
