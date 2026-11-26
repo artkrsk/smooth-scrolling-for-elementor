@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.9 – November 26, 2026
+
+* added: developers using the library outside WordPress can now pass partial or no options and get the same defaults as the plugin.
+
 ## 1.0.8 – November 21, 2026
 
 * improved: confirmed compatibility with WordPress 7.2.

@@ -1,6 +1,6 @@
 {
   "name": "@arts/smooth-scrolling",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "private": true,
   "type": "module",
   "types": "./dist/types/index.d.ts",
