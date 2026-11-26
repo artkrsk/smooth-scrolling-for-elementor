@@ -4,7 +4,7 @@ Tags: smooth scroll, scrolling, lenis, momentum scrolling, elementor
 Requires at least: 6.2
 Tested up to: 7.2
 Requires PHP: 8.0
-Stable tag: 1.0.8
+Stable tag: 1.0.9
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0
 GitHub Plugin URI: https://github.com/artkrsk/smooth-scrolling-for-elementor/
@@ -83,7 +83,7 @@ With Barba.js or any other transition library, a theme or a snippet has to do it
 
 == Changelog ==
 
-= 1.0.9 =
+= 1.0.9 – November 26, 2026 =
 * added: developers using the library outside WordPress can now pass partial or no options and get the same defaults as the plugin.
 
 = 1.0.8 – November 21, 2026 =
